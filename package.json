@@ -1,0 +1,15 @@
+{
+  "name": "lays-configurator",
+  "version": "1.0.0",
+  "description": "A 3D interactive configurator for Lay's chips bags built with Three.js. Customize your chip bag with different colors, logo sizes, and visual effects in real-time.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "three": "^0.158.0"
+  }
+}
