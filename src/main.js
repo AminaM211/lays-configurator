@@ -1,9 +1,9 @@
-// src/main.js
 import * as THREE from 'three'
 import './style.css'
 import { createUI } from './ui'
 import axios from 'axios'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import laysLogo from './assets/lays.png' // zorg dat dit bestand bestaat
 
 const app = document.querySelector('#app')
 
@@ -23,17 +23,17 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.set(0, 1.5, 4)
+camera.position.set(-1, 3, 4)
 scene.add(camera)
 
+// orbit controls (muis)
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
 controls.dampingFactor = 0.05
 controls.enablePan = true
 controls.enableZoom = true
-controls.target.set(0, 1, 0) // mik een beetje op het midden van de zak
+controls.target.set(0, 1, 0)
 controls.update()
-
 
 // licht
 const light = new THREE.DirectionalLight(0xffffff, 1)
@@ -43,17 +43,32 @@ scene.add(light)
 const ambient = new THREE.AmbientLight(0xffffff, 0.4)
 scene.add(ambient)
 
-// chipszak als box
+// chipszak als box, met verschillende materialen per vlak
 const geometry = new THREE.BoxGeometry(1.2, 2, 0.4)
-// kleur laten we wit, omdat we kleur via texture doen
-const material = new THREE.MeshStandardMaterial({ color: '#ffffff' })
-const bag = new THREE.Mesh(geometry, material)
+
+// basis materiaal voor zijkanten
+const sideMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
+// front materiaal (hier komt canvas texture op)
+const frontMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
+// back materiaal (vast design / andere kleur)
+const backMaterial = new THREE.MeshStandardMaterial({ color: '#f0f0f0' })
+
+// volgorde faces: 0=right,1=left,2=top,3=bottom,4=front,5=back
+const bag = new THREE.Mesh(geometry, [
+  sideMaterial,             // right
+  sideMaterial.clone(),     // left
+  sideMaterial.clone(),     // top
+  sideMaterial.clone(),     // bottom
+  frontMaterial,            // front (design)
+  backMaterial              // back (vast)
+])
+bag.position.y = 1
 scene.add(bag)
 
 // configuratie object dat naar je API gaat
 const config = {
   name: '',
-  image: 'https://example.com/chips.png', // file upload doen we later mooi
+  image: 'https://example.com/chips.png', // wordt overschreven door upload/info
   bagColor: '#f2f2f2',
   font: 'Helvetica',
   pattern: 'none',
@@ -62,28 +77,48 @@ const config = {
 
 let textTexture = null
 
+// logo als Image zodat we hem kunnen tekenen in canvas
+const logoImg = new Image()
+let logoLoaded = false
+logoImg.src = laysLogo
+logoImg.onload = () => {
+  logoLoaded = true
+  updateBagTexture() // eerste keer tekenen zodra logo geladen is
+}
+
 function updateBagTexture() {
+  if (!logoLoaded) return
+
   const canvas = document.createElement('canvas')
-  canvas.width = 512
-  canvas.height = 512
+  canvas.width = 1024
+  canvas.height = 1024
   const ctx = canvas.getContext('2d')
 
   // achtergrond = gekozen kleur
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  // tekst instellingen
+  // Lays logo
+  const logoWidth = 300
+  const logoHeight = 300
+  ctx.drawImage(
+    logoImg,
+    canvas.width / 2 - logoWidth / 2,
+    120, // Y-positie logo
+    logoWidth,
+    logoHeight
+  )
+
+  // NAAM
   ctx.fillStyle = 'black'
   ctx.textAlign = 'center'
+  ctx.font = 'bold 70px Helvetica'
+  ctx.fillText(config.name || '', canvas.width / 2, 500)
 
-  // naam
-  ctx.font = 'bold 50px Helvetica'
-  ctx.fillText(config.name || '', canvas.width / 2, canvas.height / 2 - 20)
-
-  // flavours
-  ctx.font = '24px Helvetica'
+  // FLAVOURS
+  ctx.font = '40px Helvetica'
   const flavoursText = config.keyFlavours.join(', ')
-  ctx.fillText(flavoursText, canvas.width / 2, canvas.height / 2 + 30)
+  ctx.fillText(flavoursText, canvas.width / 2, 580)
 
   // oude texture opruimen
   if (textTexture) {
@@ -93,8 +128,10 @@ function updateBagTexture() {
   textTexture = new THREE.CanvasTexture(canvas)
   textTexture.needsUpdate = true
 
-  bag.material.map = textTexture
-  bag.material.needsUpdate = true
+  // alleen op FRONT face (index 4)
+  const frontMat = bag.material[4]
+  frontMat.map = textTexture
+  frontMat.needsUpdate = true
 }
 
 function updateConfig() {
@@ -113,17 +150,27 @@ function updateConfig() {
   config.bagColor = colorInput.value
   config.font = fontSelect.value
 
-  // file input: voor nu alleen API-info, we gebruiken de file nog niet als texture
+  // file input: voor nu gebruiken we alleen de bestandsnaam als info
   if (imageInput.files && imageInput.files[0]) {
     config.image = imageInput.files[0].name
   }
 
-  config.keyFlavours = flavoursInput.value
+  let flavourText = flavoursInput.value.slice(0, 60) // max 40 chars
+  flavoursInput.value = flavourText // update input UI
+  
+  config.keyFlavours = flavourText
     .split(',')
     .map((f) => f.trim())
     .filter((f) => f)
+  
 
-  // update texture (kleur + tekst)
+  // zijkanten meekleuren met bagColor (0–3), front/back apart
+  for (let i = 0; i < 4; i++) {
+    bag.material[i].color.set(config.bagColor)
+  }
+
+  // front krijgt kleur via texture, back blijft vaste kleur (#f0f0f0)
+
   updateBagTexture()
 }
 
@@ -151,7 +198,6 @@ function animate() {
   renderer.render(scene, camera)
 }
 animate()
-
 
 // responsive
 window.addEventListener('resize', () => {

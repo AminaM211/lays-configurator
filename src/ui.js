@@ -5,6 +5,7 @@ export function createUI(onUpdate, onSave) {
     ui.innerHTML = `
       <h2>Customize your bag</h2>
   
+      <div class="flex">
       <label> Name:
         <input type="text" id="bag-name" placeholder="Bag name">
       </label>
@@ -26,12 +27,14 @@ export function createUI(onUpdate, onSave) {
       </label>
   
       <label> Key flavours:
-        <input type="text" id="bag-flavours" placeholder="salt, pepper">
+        <textarea id="bag-flavours" placeholder="salt, pepper" maxlength="40"></textarea>
       </label>
   
+        </div>
+         <div class= "buttons">
       <button id="save-config">Upload</button>
       <button id="reset-config">Reset design</button>
-
+      </div>
     `
   
     document.body.appendChild(ui)
