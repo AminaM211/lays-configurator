@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import './style.css'
 import { createUI } from './ui'
 import axios from 'axios'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 const app = document.querySelector('#app')
 
@@ -24,6 +25,15 @@ const camera = new THREE.PerspectiveCamera(
 )
 camera.position.set(0, 1.5, 4)
 scene.add(camera)
+
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.enableDamping = true
+controls.dampingFactor = 0.05
+controls.enablePan = true
+controls.enableZoom = true
+controls.target.set(0, 1, 0) // mik een beetje op het midden van de zak
+controls.update()
+
 
 // licht
 const light = new THREE.DirectionalLight(0xffffff, 1)
@@ -137,10 +147,11 @@ async function saveToAPI() {
 // animatie
 function animate() {
   requestAnimationFrame(animate)
-  bag.rotation.y += 0.01
+  controls.update()
   renderer.render(scene, camera)
 }
 animate()
+
 
 // responsive
 window.addEventListener('resize', () => {
