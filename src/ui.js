@@ -11,7 +11,7 @@ export function createUI(onUpdate, onSave) {
       </label>
   
       <label> Bag color:
-        <input type="color" id="bag-color" value="#f2f2f2">
+        <input type="color" id="bag-color" value="#ff0000">
       </label>
   
       <label> Font:

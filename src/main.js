@@ -51,7 +51,7 @@ const sideMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 // front materiaal (hier komt canvas texture op)
 const frontMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 // back materiaal (vast design / andere kleur)
-const backMaterial = new THREE.MeshStandardMaterial({ color: '#f0f0f0' })
+const backMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 
 // volgorde faces: 0=right,1=left,2=top,3=bottom,4=front,5=back
 const bag = new THREE.Mesh(geometry, [
@@ -69,7 +69,7 @@ scene.add(bag)
 const config = {
   name: '',
   image: 'https://example.com/chips.png', // wordt overschreven door upload/info
-  bagColor: '#f2f2f2',
+  bagColor: '#d32b2b',
   font: 'Helvetica',
   pattern: 'none',
   keyFlavours: []
@@ -86,6 +86,26 @@ logoImg.onload = () => {
   updateBagTexture() // eerste keer tekenen zodra logo geladen is
 }
 
+function shadeColor(color, percent) {
+  // color verwacht bv. "#f2f2f2"
+  const num = parseInt(color.slice(1), 16)
+  const amt = Math.round(2.55 * percent)
+  const r = (num >> 16) + amt
+  const g = ((num >> 8) & 0x00ff) + amt
+  const b = (num & 0x0000ff) + amt
+  return (
+    '#' +
+    (
+      0x1000000 +
+      (r < 255 ? (r < 0 ? 0 : r) : 255) * 0x10000 +
+      (g < 255 ? (g < 0 ? 0 : g) : 255) * 0x100 +
+      (b < 255 ? (b < 0 ? 0 : b) : 255)
+    )
+      .toString(16)
+      .slice(1)
+  )
+}
+ 
 function updateBagTexture() {
   if (!logoLoaded) return
 
@@ -94,45 +114,96 @@ function updateBagTexture() {
   canvas.height = 1024
   const ctx = canvas.getContext('2d')
 
-  // achtergrond = gekozen kleur
+  // 1) BASIS: volledige achtergrond in gekozen kleur
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  // Lays logo
-  const logoWidth = 300
-  const logoHeight = 300
+  // 2) zachte gradient overlay
+  const cx = canvas.width / 2
+  const cy = canvas.height / 2
+  const gradient = ctx.createRadialGradient(
+    cx,
+    cy,
+    80,
+    cx,
+    cy,
+    520
+  )
+  gradient.addColorStop(0, 'rgba(255,255,255,0.22)')
+  gradient.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+  
+  // 3) LAYS LOGO
+  const logoWidth = 500
+  const logoHeight = 260
   ctx.drawImage(
     logoImg,
     canvas.width / 2 - logoWidth / 2,
-    120, // Y-positie logo
+    110,
     logoWidth,
     logoHeight
   )
 
-  // NAAM
-  ctx.fillStyle = 'black'
+  // 4) "Potato Chips" in wit, zonder donkere band
+  ctx.fillStyle = 'white'
+  ctx.font = 'bold 40px Helvetica'
   ctx.textAlign = 'center'
-  ctx.font = 'bold 70px Helvetica'
-  ctx.fillText(config.name || '', canvas.width / 2, 500)
+  ctx.fillText('Potato Chips', canvas.width / 2, 430)
 
-  // FLAVOURS
-  ctx.font = '40px Helvetica'
+  // 5) CUSTOM NAAM
+  ctx.fillStyle = 'white'
+  ctx.font = 'bold 80px Arial'
+  ctx.letterSpacing = '2px'
+
+  ctx.fillText(config.name || '', canvas.width / 2, 520)
+
+  // 6) CUSTOM FLAVOURS
+  ctx.font = '36px Helvetica'
   const flavoursText = config.keyFlavours.join(', ')
   ctx.fillText(flavoursText, canvas.width / 2, 580)
 
-  // oude texture opruimen
-  if (textTexture) {
-    textTexture.dispose()
-  }
+  // 7) KLEIN BADGE BOVEN HOEK (bv. “Limited” of gewoon een rondje)
+  ctx.beginPath()
+  ctx.ellipse(canvas.width - 160, canvas.height - 120, 100, 70, 0, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.24)'
+  ctx.fill()
+  ctx.fillStyle = '#fff'
+  ctx.lineWidth = 8
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.10)'
+  ctx.stroke()
+
+  ctx.font = '10px Helvetica'
+  ctx.textAlign = 'center'
+  ctx.letterSpacing = '2px'
+
+  ctx.fillText('MADE WITH', canvas.width - 160, canvas.height - 150)
+
+  ctx.font = '30px Helvetica'
+  ctx.textAlign = 'center'
+  ctx.fillText('100%', canvas.width - 160, canvas.height - 120)
+
+  ctx.font = '30px Helvetica'
+
+  ctx.fillText('Quality', canvas.width - 160, canvas.height - 95)
+
+  ctx.font = '10px Helvetica'
+  ctx.fillText('INGREDIENTS', canvas.width - 160, canvas.height - 75)
+
+  // 8) texture updaten (alleen front)
+  if (textTexture) textTexture.dispose()
 
   textTexture = new THREE.CanvasTexture(canvas)
   textTexture.needsUpdate = true
 
-  // alleen op FRONT face (index 4)
   const frontMat = bag.material[4]
   frontMat.map = textTexture
   frontMat.needsUpdate = true
 }
+
+
 
 function updateConfig() {
   const nameInput = document.querySelector('#bag-name')
@@ -168,6 +239,7 @@ function updateConfig() {
   for (let i = 0; i < 4; i++) {
     bag.material[i].color.set(config.bagColor)
   }
+  bag.material[5].color.set(config.bagColor)
 
   // front krijgt kleur via texture, back blijft vaste kleur (#f0f0f0)
 
