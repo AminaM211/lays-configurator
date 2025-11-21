@@ -94,3 +94,26 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.ui {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 260px;
+  height: 100vh;
+  background: white;
+  padding: 20px;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: sans-serif;
+}
+.ui input, .ui select {
+  width: 100%;
+  margin-top: 4px;
+  padding: 6px;
+}
+.ui h2 {
+  margin-top: 0;
+}

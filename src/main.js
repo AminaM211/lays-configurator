@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 import './style.css'
+import { createUI } from './ui'
+import axios from 'axios'
+
 
 const app = document.querySelector('#app')
 
@@ -36,6 +39,47 @@ const material = new THREE.MeshStandardMaterial({ color: '#f2f2f2' })
 const bag = new THREE.Mesh(geometry, material)
 scene.add(bag)
 
+const config = {
+  name: '',
+  image: 'https://example.com/chips.png', // voor nu placeholder
+  bagColor: '#f2f2f2',
+  font: 'Helvetica',
+  pattern: 'none',
+  packaging: 'classic',
+  keyFlavours: []
+}
+
+function updateConfig() {
+  config.name = document.querySelector('#bag-name').value
+  config.bagColor = document.querySelector('#bag-color').value
+  config.font = document.querySelector('#bag-font').value
+  config.packaging = document.querySelector('#bag-packaging').value
+  config.keyFlavours = document.querySelector('#bag-flavours').value
+    .split(',')
+    .map(f => f.trim())
+
+  // update kleur op model
+  bag.material.color.set(config.bagColor)
+}
+
+async function saveToAPI() {
+  // JOUW ADMIN TOKEN HIER invullen tijdelijk
+  const TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s"
+
+  try {
+    await axios.post('http://localhost:4000/api/v1/bag', config, {
+      headers: {
+        Authorization: TOKEN
+      }
+    })
+    alert("Saved! Check admin panel.")
+  } catch (err) {
+    console.error(err)
+    alert("Error saving.")
+  }
+}
+
+
 // animatie
 function animate() {
   requestAnimationFrame(animate)
@@ -52,3 +96,5 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix()
   renderer.setSize(w, h)
 })
+
+createUI(updateConfig, saveToAPI)
