@@ -1,9 +1,13 @@
+// src/main.js
 import * as THREE from 'three'
 import './style.css'
 import { createUI } from './ui'
 import axios from 'axios'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import laysLogo from './assets/lays.png' // zorg dat dit bestand bestaat
+import laysLogo from './assets/lays.png'
+
+import backImg1 from './assets/back-img1.png'
+import backImg2 from './assets/back-img2.png'
 
 const app = document.querySelector('#app')
 
@@ -23,7 +27,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 )
-camera.position.set(-1, 3, 4)
+camera.position.set(-1, 2, 4)
 scene.add(camera)
 
 // orbit controls (muis)
@@ -40,17 +44,22 @@ const light = new THREE.DirectionalLight(0xffffff, 1)
 light.position.set(2, 4, 5)
 scene.add(light)
 
-const ambient = new THREE.AmbientLight(0xffffff, 0.4)
+const backLight = new THREE.DirectionalLight(0xffffff, 0.6)
+backLight.position.set(-2, 4, -5)
+scene.add(backLight)
+
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.8)
 scene.add(ambient)
 
 // chipszak als box, met verschillende materialen per vlak
-const geometry = new THREE.BoxGeometry(1.2, 2, 0.4)
+const geometry = new THREE.BoxGeometry(1.2, 2, 0.2)
 
 // basis materiaal voor zijkanten
 const sideMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 // front materiaal (hier komt canvas texture op)
 const frontMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
-// back materiaal (vast design / andere kleur)
+// back materiaal (vaste backside texture)
 const backMaterial = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 
 // volgorde faces: 0=right,1=left,2=top,3=bottom,4=front,5=back
@@ -77,6 +86,12 @@ const config = {
 
 let textTexture = null
 
+// user-chosen image (onderaan op de zak)
+const customImage = new Image()
+let customImageLoaded = false
+let customImageUrl = null
+
+
 // logo als Image zodat we hem kunnen tekenen in canvas
 const logoImg = new Image()
 let logoLoaded = false
@@ -85,10 +100,26 @@ logoImg.onload = () => {
   logoLoaded = true
   updateBagTexture() // eerste keer tekenen zodra logo geladen is
 }
- 
-function updateBagTexture() {
-  if (!logoLoaded) return
 
+// ---- BACK-SIDE IMAGES (vaste achterkant voor alle zakken) ----
+const backImage1 = new Image()
+const backImage2 = new Image()
+let backImagesLoaded = 0
+
+backImage1.src = backImg1
+backImage2.src = backImg2
+
+backImage1.onload = () => {
+  backImagesLoaded++
+  if (backImagesLoaded === 2) createBackTexture()
+}
+
+backImage2.onload = () => {
+  backImagesLoaded++
+  if (backImagesLoaded === 2) createBackTexture()
+}
+
+function createBackTexture() {
   const canvas = document.createElement('canvas')
   canvas.width = 1024
   canvas.height = 1024
@@ -98,12 +129,10 @@ function updateBagTexture() {
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  // 2) zachte gradient overlay
+  // 2) zachte gradient overlay (zelfde als voorkant)
   const cx = canvas.width / 2
   const cy = canvas.height / 2
-  const gradient = ctx.createRadialGradient(
-    cx,cy,80,cx,cy,520
-  )
+  const gradient = ctx.createRadialGradient(cx, cy, 80, cx, cy, 520)
   gradient.addColorStop(0, 'rgba(255,255,255,0.3)')
   gradient.addColorStop(1, 'rgba(255,255,255,0)')
   ctx.fillStyle = gradient
@@ -111,7 +140,7 @@ function updateBagTexture() {
 
   // 3) RINGEN (geen gradient, echte bogen)
   const centerX = canvas.width / 2
-  const centerY = canvas.height   // centrum laag zetten, zoals op echte zak
+  const centerY = canvas.height // centrum laag, zoals echte zak
 
   const bands = [
     { radius: 800, shade: -3, alpha: 0.2 },
@@ -121,20 +150,18 @@ function updateBagTexture() {
     { radius: 400, shade: -3, alpha: 0.4 }
   ]
 
-  bands.forEach(band => {
+  bands.forEach((band) => {
     ctx.fillStyle = shadeColor(config.bagColor, band.shade)
-    ctx.globalAlpha = band.alpha // Set transparency
+    ctx.globalAlpha = band.alpha
     ctx.beginPath()
-    // halve cirkel (boog) van links naar rechts
     ctx.arc(centerX, centerY, band.radius, Math.PI, 0)
-    // onderkant dichtmaken tot buiten beeld
     ctx.lineTo(centerX + band.radius, canvas.height)
     ctx.lineTo(centerX - band.radius, canvas.height)
     ctx.closePath()
     ctx.fill()
   })
 
-  ctx.globalAlpha = 1 // Reset transparency to default
+  ctx.globalAlpha = 1 // reset transparency
 
   function shadeColor(color, percent) {
     const num = parseInt(color.slice(1), 16)
@@ -152,7 +179,85 @@ function updateBagTexture() {
         .slice(1)
     )
   }
-  
+
+  // 4) vaste achterkant-images erbovenop
+  ctx.drawImage(backImage1, 80, 200, 420, 520)
+  ctx.drawImage(backImage2, 560, 200, 360, 520)
+
+  // 5) texture maken en op backside zetten
+  const backTexture = new THREE.CanvasTexture(canvas)
+  backTexture.needsUpdate = true
+
+  const backMat = bag.material[5]
+  backMat.map = backTexture
+  backMat.needsUpdate = true
+}
+
+// --------------------------------------------------------------
+
+function updateBagTexture() {
+  if (!logoLoaded) return
+
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 1024
+  const ctx = canvas.getContext('2d')
+
+  // 1) BASIS: volledige achtergrond in gekozen kleur
+  ctx.fillStyle = config.bagColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // 2) zachte gradient overlay
+  const cx = canvas.width / 2
+  const cy = canvas.height / 2
+  const gradient = ctx.createRadialGradient(cx, cy, 80, cx, cy, 520)
+  gradient.addColorStop(0, 'rgba(255,255,255,0.3)')
+  gradient.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // 3) RINGEN (geen gradient, echte bogen)
+  const centerX = canvas.width / 2
+  const centerY = canvas.height // centrum laag zetten, zoals op echte zak
+
+  const bands = [
+    { radius: 800, shade: -3, alpha: 0.2 },
+    { radius: 700, shade: 3, alpha: 0.3 },
+    { radius: 600, shade: -3, alpha: 0.4 },
+    { radius: 500, shade: 3, alpha: 0.5 },
+    { radius: 400, shade: -3, alpha: 0.4 }
+  ]
+
+  bands.forEach((band) => {
+    ctx.fillStyle = shadeColor(config.bagColor, band.shade)
+    ctx.globalAlpha = band.alpha
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, band.radius, Math.PI, 0)
+    ctx.lineTo(centerX + band.radius, canvas.height)
+    ctx.lineTo(centerX - band.radius, canvas.height)
+    ctx.closePath()
+    ctx.fill()
+  })
+
+  ctx.globalAlpha = 1 // reset transparency
+
+  function shadeColor(color, percent) {
+    const num = parseInt(color.slice(1), 16)
+    const amt = Math.round(2.55 * percent)
+    const R = (num >> 16) + amt
+    const G = ((num >> 8) & 0x00ff) + amt
+    const B = (num & 0x0000ff) + amt
+    return (
+      '#' +
+      (0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255))
+        .toString(16)
+        .slice(1)
+    )
+  }
+
   // 3) LAYS LOGO
   const logoWidth = 500
   const logoHeight = 260
@@ -174,7 +279,6 @@ function updateBagTexture() {
   ctx.fillStyle = 'white'
   ctx.font = 'bold 80px Arial'
   ctx.letterSpacing = '2px'
-
   ctx.fillText(config.name || '', canvas.width / 2, 520)
 
   // 6) CUSTOM FLAVOURS
@@ -182,9 +286,17 @@ function updateBagTexture() {
   const flavoursText = config.keyFlavours.join(', ')
   ctx.fillText(flavoursText, canvas.width / 2, 580)
 
-  // 7) KLEIN BADGE BOVEN HOEK (bv. “Limited” of gewoon een rondje)
+  // 7) badge rechtsonder
   ctx.beginPath()
-  ctx.ellipse(canvas.width - 160, canvas.height - 120, 100, 70, 0, 0, Math.PI * 2)
+  ctx.ellipse(
+    canvas.width - 160,
+    canvas.height - 120,
+    100,
+    70,
+    0,
+    0,
+    Math.PI * 2
+  )
   ctx.fillStyle = 'rgba(0, 0, 0, 0.24)'
   ctx.fill()
   ctx.fillStyle = '#fff'
@@ -195,20 +307,29 @@ function updateBagTexture() {
   ctx.font = '10px Helvetica'
   ctx.textAlign = 'center'
   ctx.letterSpacing = '2px'
-
   ctx.fillText('MADE WITH', canvas.width - 160, canvas.height - 150)
 
   ctx.font = '30px Helvetica'
-  ctx.textAlign = 'center'
   ctx.fillText('100%', canvas.width - 160, canvas.height - 120)
-
-  ctx.font = '30px Helvetica'
-
   ctx.fillText('Quality', canvas.width - 160, canvas.height - 95)
 
   ctx.font = '10px Helvetica'
   ctx.fillText('INGREDIENTS', canvas.width - 160, canvas.height - 75)
 
+    // 7b) user image onderaan op de zak (alleen als er eentje gekozen is)
+    if (customImageLoaded) {
+      const imgWidth = 450
+      const imgHeight = 350
+  
+      ctx.drawImage(
+        customImage,
+        canvas.width / 2 - imgWidth / 2,   // horizontaal centreren
+        canvas.height - imgHeight - 70,    // een beetje boven de onderrand
+        imgWidth,
+        imgHeight
+      )
+    }
+  
   // 8) texture updaten (alleen front)
   if (textTexture) textTexture.dispose()
 
@@ -220,45 +341,58 @@ function updateBagTexture() {
   frontMat.needsUpdate = true
 }
 
-
-
 function updateConfig() {
   const nameInput = document.querySelector('#bag-name')
   const colorInput = document.querySelector('#bag-color')
-  const fontSelect = document.querySelector('#bag-font')
+  const fontInput = document.querySelector('input[name="bag-font"]:checked')
   const imageInput = document.querySelector('#bag-image')
   const flavoursInput = document.querySelector('#bag-flavours')
 
-  if (!nameInput || !colorInput || !fontSelect || !imageInput || !flavoursInput) {
+  if (!nameInput || !colorInput || !fontInput || !imageInput || !flavoursInput) {
     console.warn('UI elements not found, check ids in ui.js')
     return
   }
 
   config.name = nameInput.value
   config.bagColor = colorInput.value
-  config.font = fontSelect.value
+  config.font = fontInput ? fontInput.value : 'Helvetica'
 
-  // file input: voor nu gebruiken we alleen de bestandsnaam als info
-  if (imageInput.files && imageInput.files[0]) {
-    config.image = imageInput.files[0].name
+  // file input: gebruik echte image en toon onderaan op de zak
+if (imageInput.files && imageInput.files[0]) {
+  const file = imageInput.files[0]
+  config.image = file.name
+
+  // vorige blob-url opruimen
+  if (customImageUrl) {
+    URL.revokeObjectURL(customImageUrl)
   }
 
-  let flavourText = flavoursInput.value.slice(0, 60) // max 40 chars
-  flavoursInput.value = flavourText // update input UI
-  
+  customImageUrl = URL.createObjectURL(file)
+  customImageLoaded = false
+  customImage.src = customImageUrl
+
+  customImage.onload = () => {
+    customImageLoaded = true
+    updateBagTexture() // opnieuw tekenen met nieuwe image
+  }
+}
+
+
+  let flavourText = flavoursInput.value.slice(0, 60) // max 40 chars (jouw code)
+  flavoursInput.value = flavourText
+
   config.keyFlavours = flavourText
     .split(',')
     .map((f) => f.trim())
     .filter((f) => f)
-  
 
-  // zijkanten meekleuren met bagColor (0–3), front/back apart
+  // zijkanten meekleuren met bagColor (0–3)
   for (let i = 0; i < 4; i++) {
     bag.material[i].color.set(config.bagColor)
   }
-  bag.material[5].color.set(config.bagColor)
-
-  // front krijgt kleur via texture, back blijft vaste kleur (#f0f0f0)
+  // achterkant meekleuren 
+  createBackTexture() // Only update the back texture without overriding the images
+  
 
   updateBagTexture()
 }
