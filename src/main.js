@@ -85,26 +85,6 @@ logoImg.onload = () => {
   logoLoaded = true
   updateBagTexture() // eerste keer tekenen zodra logo geladen is
 }
-
-function shadeColor(color, percent) {
-  // color verwacht bv. "#f2f2f2"
-  const num = parseInt(color.slice(1), 16)
-  const amt = Math.round(2.55 * percent)
-  const r = (num >> 16) + amt
-  const g = ((num >> 8) & 0x00ff) + amt
-  const b = (num & 0x0000ff) + amt
-  return (
-    '#' +
-    (
-      0x1000000 +
-      (r < 255 ? (r < 0 ? 0 : r) : 255) * 0x10000 +
-      (g < 255 ? (g < 0 ? 0 : g) : 255) * 0x100 +
-      (b < 255 ? (b < 0 ? 0 : b) : 255)
-    )
-      .toString(16)
-      .slice(1)
-  )
-}
  
 function updateBagTexture() {
   if (!logoLoaded) return
@@ -122,19 +102,56 @@ function updateBagTexture() {
   const cx = canvas.width / 2
   const cy = canvas.height / 2
   const gradient = ctx.createRadialGradient(
-    cx,
-    cy,
-    80,
-    cx,
-    cy,
-    520
+    cx,cy,80,cx,cy,520
   )
-  gradient.addColorStop(0, 'rgba(255,255,255,0.22)')
+  gradient.addColorStop(0, 'rgba(255,255,255,0.3)')
   gradient.addColorStop(1, 'rgba(255,255,255,0)')
   ctx.fillStyle = gradient
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+  // 3) RINGEN (geen gradient, echte bogen)
+  const centerX = canvas.width / 2
+  const centerY = canvas.height   // centrum laag zetten, zoals op echte zak
 
+  const bands = [
+    { radius: 800, shade: -3, alpha: 0.2 },
+    { radius: 700, shade: 3, alpha: 0.3 },
+    { radius: 600, shade: -3, alpha: 0.4 },
+    { radius: 500, shade: 3, alpha: 0.5 },
+    { radius: 400, shade: -3, alpha: 0.4 }
+  ]
+
+  bands.forEach(band => {
+    ctx.fillStyle = shadeColor(config.bagColor, band.shade)
+    ctx.globalAlpha = band.alpha // Set transparency
+    ctx.beginPath()
+    // halve cirkel (boog) van links naar rechts
+    ctx.arc(centerX, centerY, band.radius, Math.PI, 0)
+    // onderkant dichtmaken tot buiten beeld
+    ctx.lineTo(centerX + band.radius, canvas.height)
+    ctx.lineTo(centerX - band.radius, canvas.height)
+    ctx.closePath()
+    ctx.fill()
+  })
+
+  ctx.globalAlpha = 1 // Reset transparency to default
+
+  function shadeColor(color, percent) {
+    const num = parseInt(color.slice(1), 16)
+    const amt = Math.round(2.55 * percent)
+    const R = (num >> 16) + amt
+    const G = ((num >> 8) & 0x00ff) + amt
+    const B = (num & 0x0000ff) + amt
+    return (
+      '#' +
+      (0x1000000 +
+        (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+        (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+        (B < 255 ? (B < 1 ? 0 : B) : 255))
+        .toString(16)
+        .slice(1)
+    )
+  }
   
   // 3) LAYS LOGO
   const logoWidth = 500
