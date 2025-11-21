@@ -51,7 +51,7 @@ export function createUI(onUpdate, onSave) {
       </label>
   
       <label class="h3"> Key flavours:
-        <input type="text" id="bag-flavours" placeholder="salt, pepper" maxlength="40">
+        <textarea id="bag-flavours" placeholder="salt, pepper" maxlength="40" style="resize: none;"></textarea>
       </label>
   
       <div class="button-row">

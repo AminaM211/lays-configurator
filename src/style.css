@@ -51,7 +51,7 @@ a:hover {
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 280px;
+  width: 400px;
   max-height: calc(100vh - 40px);
   padding: 18px 18px 16px;
   border-radius: 20px;
@@ -322,54 +322,61 @@ a:hover {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* ====== MOBILE LAYOUT ====== */
+/* ====== MOBILE ====== */
 
 @media (max-width: 800px) {
   .ui {
-    display: grid;
-    top: auto;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    width: 100%;
-    max-height: 44vh;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    left: auto;
+    bottom: auto;
+    width: 61vw;
+    max-height: 41vh;
     margin: 0;
-    border-radius: 18px 18px 0 0;
-    padding: 12px 16px 14px;
+    border-radius: 18px;
+    padding: 10px 12px 12px;
+    display: flex;
     flex-direction: column;
     gap: 8px;
     box-shadow:
-      0 -16px 40px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(255, 255, 255, 0.16);
+      0 14px 30px rgba(0, 0, 0, 0.65),
+      0 0 0 1px rgba(255, 255, 255, 0.18);
+    overflow-y: auto;
   }
 
   .ui h2 {
-    font-size: 0.9rem;
-  }
-
-  .color-presets {
-    gap: 6px;
+    font-size: 0.85rem;
+    margin-bottom: 2px;
   }
 
   label {
-    width: 100%;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-weight: 700;
-    color: rgba(40, 20, 5, 0.8);
-    margin-bottom: 8px;
-    }
+    font-size: 0.75rem;
+  }
 
   .ui input,
-  .ui select {
-    font-size: 0.8rem;
+  .ui select,
+  .ui textarea {
+    font-size: 0.78rem;
     padding: 5px 7px;
-    width: 200px;
+  }
+
+  .color-presets {
+    gap: 4px;
+  }
+
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+  }
+
+  .button-row {
+    margin-top: 6px;
+    gap: 6px;
   }
 
   .button-row button {
-    font-size: 0.8rem;
-    padding: 7px 8px;
+    font-size: 0.78rem;
+    padding: 6px 7px;
   }
 }
