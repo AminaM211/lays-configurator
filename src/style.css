@@ -101,19 +101,60 @@ button:focus-visible {
   right: 0;
   width: 260px;
   height: 100vh;
-  background: white;
+  background: #fff4c6f0; /* Lays signature yellow */
   padding: 20px;
-  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   gap: 14px;
-  font-family: sans-serif;
+  border-radius: 20px 0 0 0px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
 }
 .ui input, .ui select {
-  width: 100%;
+  width: 90%;
   margin-top: 4px;
   padding: 6px;
+  border: 1px solid #e6b800; /* Slightly darker yellow for borders */
+  border-radius: 4px;
+  background: #fff8e1; /* Soft yellow background */
+  font-size: 0.9em;
+}
+.ui input:focus, .ui select:focus {
+  outline: none;
+  border-color: #ff9900; /* Orange focus border */
+  box-shadow: 0 0 4px #ff9900;
 }
 .ui h2 {
   margin-top: 0;
+  color: #cc3300; /* Lays red for headings */
+  font-size: 1.4em;
+  font-weight: bold;
+}
+.ui #save-config {
+  background: #cc3300; /* Lays red */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.ui #reset-config {
+  color: #cc3300; /* Lays red */
+  background: white;
+  border: #cc3300 2px solid;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.ui button:hover {
+  background: #b32400; /* Darker red on hover */
+}
+.ui button:focus {
+  outline: 2px solid #ffcc00; /* Yellow focus outline */
 }

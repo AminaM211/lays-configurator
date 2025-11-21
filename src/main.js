@@ -1,8 +1,8 @@
+// src/main.js
 import * as THREE from 'three'
 import './style.css'
 import { createUI } from './ui'
 import axios from 'axios'
-
 
 const app = document.querySelector('#app')
 
@@ -33,38 +33,93 @@ scene.add(light)
 const ambient = new THREE.AmbientLight(0xffffff, 0.4)
 scene.add(ambient)
 
-// “chipszak” als box
+// chipszak als box
 const geometry = new THREE.BoxGeometry(1.2, 2, 0.4)
-const material = new THREE.MeshStandardMaterial({ color: '#f2f2f2' })
+// kleur laten we wit, omdat we kleur via texture doen
+const material = new THREE.MeshStandardMaterial({ color: '#ffffff' })
 const bag = new THREE.Mesh(geometry, material)
 scene.add(bag)
 
+// configuratie object dat naar je API gaat
 const config = {
   name: '',
-  image: 'https://example.com/chips.png', // voor nu placeholder
+  image: 'https://example.com/chips.png', // file upload doen we later mooi
   bagColor: '#f2f2f2',
   font: 'Helvetica',
   pattern: 'none',
-  packaging: 'classic',
   keyFlavours: []
 }
 
-function updateConfig() {
-  config.name = document.querySelector('#bag-name').value
-  config.bagColor = document.querySelector('#bag-color').value
-  config.font = document.querySelector('#bag-font').value
-  config.packaging = document.querySelector('#bag-packaging').value
-  config.keyFlavours = document.querySelector('#bag-flavours').value
-    .split(',')
-    .map(f => f.trim())
+let textTexture = null
 
-  // update kleur op model
-  bag.material.color.set(config.bagColor)
+function updateBagTexture() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 512
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')
+
+  // achtergrond = gekozen kleur
+  ctx.fillStyle = config.bagColor
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // tekst instellingen
+  ctx.fillStyle = 'black'
+  ctx.textAlign = 'center'
+
+  // naam
+  ctx.font = 'bold 50px Helvetica'
+  ctx.fillText(config.name || '', canvas.width / 2, canvas.height / 2 - 20)
+
+  // flavours
+  ctx.font = '24px Helvetica'
+  const flavoursText = config.keyFlavours.join(', ')
+  ctx.fillText(flavoursText, canvas.width / 2, canvas.height / 2 + 30)
+
+  // oude texture opruimen
+  if (textTexture) {
+    textTexture.dispose()
+  }
+
+  textTexture = new THREE.CanvasTexture(canvas)
+  textTexture.needsUpdate = true
+
+  bag.material.map = textTexture
+  bag.material.needsUpdate = true
+}
+
+function updateConfig() {
+  const nameInput = document.querySelector('#bag-name')
+  const colorInput = document.querySelector('#bag-color')
+  const fontSelect = document.querySelector('#bag-font')
+  const imageInput = document.querySelector('#bag-image')
+  const flavoursInput = document.querySelector('#bag-flavours')
+
+  if (!nameInput || !colorInput || !fontSelect || !imageInput || !flavoursInput) {
+    console.warn('UI elements not found, check ids in ui.js')
+    return
+  }
+
+  config.name = nameInput.value
+  config.bagColor = colorInput.value
+  config.font = fontSelect.value
+
+  // file input: voor nu alleen API-info, we gebruiken de file nog niet als texture
+  if (imageInput.files && imageInput.files[0]) {
+    config.image = imageInput.files[0].name
+  }
+
+  config.keyFlavours = flavoursInput.value
+    .split(',')
+    .map((f) => f.trim())
+    .filter((f) => f)
+
+  // update texture (kleur + tekst)
+  updateBagTexture()
 }
 
 async function saveToAPI() {
-  // JOUW ADMIN TOKEN HIER invullen tijdelijk
-  const TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s"
+  const TOKEN =
+    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s'
 
   try {
     await axios.post('http://localhost:4000/api/v1/bag', config, {
@@ -72,13 +127,12 @@ async function saveToAPI() {
         Authorization: TOKEN
       }
     })
-    alert("Saved! Check admin panel.")
+    alert('Saved! Check admin panel.')
   } catch (err) {
     console.error(err)
-    alert("Error saving.")
+    alert('Error saving.')
   }
 }
-
 
 // animatie
 function animate() {
@@ -97,4 +151,8 @@ window.addEventListener('resize', () => {
   renderer.setSize(w, h)
 })
 
+// UI aanmaken
 createUI(updateConfig, saveToAPI)
+
+// eerste draw zodat kleur en tekst vanaf start kloppen
+updateConfig()

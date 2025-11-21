@@ -21,19 +21,17 @@ export function createUI(onUpdate, onSave) {
         </select>
       </label>
   
-      <label> Packaging:
-        <select id="bag-packaging">
-            <option value="classic">Classic</option>
-            <option value="matte">Matte</option>
-            <option value="glossy">Glossy</option>
-        </select>
+      <label> Image:
+        <input type="file" id="bag-image" accept="image/*">
       </label>
   
       <label> Key flavours:
         <input type="text" id="bag-flavours" placeholder="salt, pepper">
       </label>
   
-      <button id="save-config">Save</button>
+      <button id="save-config">Upload</button>
+      <button id="reset-config">Reset design</button>
+
     `
   
     document.body.appendChild(ui)
@@ -41,9 +39,15 @@ export function createUI(onUpdate, onSave) {
     ui.querySelector('#bag-color').addEventListener('input', onUpdate)
     ui.querySelector('#bag-name').addEventListener('input', onUpdate)
     ui.querySelector('#bag-font').addEventListener('change', onUpdate)
-    ui.querySelector('#bag-packaging').addEventListener('change', onUpdate)
+    ui.querySelector('#bag-image').addEventListener('input', onUpdate)
     ui.querySelector('#bag-flavours').addEventListener('input', onUpdate)
-  
     ui.querySelector('#save-config').addEventListener('click', onSave)
+    ui.querySelector('#reset-config').addEventListener('click', () => {
+        ui.querySelector('#bag-name').value = ''
+        ui.querySelector('#bag-color').value = '#f2f2f2'
+        ui.querySelector('#bag-font').value = 'Helvetica'
+        ui.querySelector('#bag-image').value = ''
+        ui.querySelector('#bag-flavours').value = ''
+        onUpdate()
+    })
   }
-  
