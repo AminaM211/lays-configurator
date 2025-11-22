@@ -5,7 +5,7 @@
   line-height: 1.5;
   font-weight: 400;
   color: #f5f5f5;
-  background-color: #05060a;
+  background-color: transparent !important;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -21,7 +21,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: radial-gradient(circle at top, #191b2a 0, #05060a 50%, #020308 100%);
+  background: transparent !important;
   color: #f5f5f5;
   overflow: hidden;
 }
@@ -222,21 +222,23 @@ a:hover {
     box-shadow 0.16s ease-out,
     border-color 0.16s ease-out;
 
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
     border-radius: 5px;
     object-fit: cover;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    /* box-shadow: 0 2px 6px rgba(0,0,0,0.3); */
     transition: 0.2s;
+    border: none;
 }
+
 
 .bg-swatch::before {
   content: '';
   position: absolute;
   inset: 3px;
   border-radius: inherit;
-  background: var(--swatch-color, #ccc);
+  background: var(--swatch-color, #fff);
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.18),
     0 4px 10px rgba(0, 0, 0, 0.28);
@@ -256,17 +258,13 @@ a:hover {
 }
 
 .bg-swatch:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
 }
 
 .bg-swatch.is-active {
-  border-color: #ffffff;
-  box-shadow:
-    0 0 0 2px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.6);
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
-
 /* ====== FONT RADIO GROUP ====== */
 
 .font-group {
@@ -441,12 +439,12 @@ a:hover {
 }
 
 .background-group {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px dashed rgba(120, 70, 10, 0.35);
+  border-bottom: 1px dashed rgba(120, 70, 10, 0.35);
+  padding-bottom: 20px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 6px;
+  align-items: center;
 }
 
 .background-row {
@@ -468,6 +466,10 @@ a:hover {
   gap: 8px;
 }
 
+#bg-image {
+  margin: 0;
+}
+
 .bg-img-thumb {
   width: 30px;
   height: 30px;
@@ -485,4 +487,40 @@ a:hover {
 .bg-img-thumb.is-active {
   outline: 2px solid white;
   box-shadow: 0 0 10px rgba(255,255,255,0.6);
+}
+
+#bg-box {
+  position: fixed;
+  width: 75vh;
+  height: 75vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0; /* Lower z-index to ensure it appears below #app and .ui */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+}
+
+@media (max-width: 800px) {
+  #bg-box {
+      width: 55vh;
+      height: 55vh;
+      top: 30%;
+  }
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+.ui {
+  position: fixed;
+  z-index: 10; /* Keep .ui on top */
+}
+
+body {
+  background: transparent !important;
 }

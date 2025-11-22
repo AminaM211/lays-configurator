@@ -1,4 +1,9 @@
 // src/ui.js
+import blueBg from "./assets/blue-bg.png"
+import greenBg from "./assets/green-bg.png"
+import pinkBg from "./assets/pink-bg.png"
+import redBg from "./assets/red-bg.png"
+
 export function createUI(onUpdate, onSave) {
     const ui = document.createElement('div')
     ui.className = 'ui'
@@ -26,24 +31,21 @@ export function createUI(onUpdate, onSave) {
         </div>
       </div>
   
-      <!-- BACKGROUND -->
+      <!-- BACKGROUND -->       
+       <h3>Background </h3>
       <div class="background-group">
-        <h3>Background </h3>
         <label class="bg-label">
-            <div class="bg-images">
           <button type="button" class="bg-swatch" data-color="custom"></button>
           <input type="color" id="bg-color" value="#d32b2b" class="color-input-hidden">
-
-            <img class="bg-img-thumb" data-img="stars" src="assets/bg-stars.jpg">
-            <img class="bg-img-thumb" data-img="abstract" src="assets/bg-abstract.jpg">
-            <img class="bg-img-thumb" data-img="sunset" src="assets/bg-sunset.jpg">
-            <img class="bg-img-thumb" data-img="purple" src="assets/bg-purple.jpg">
-            </div>
-
-            <h3>Or upload your own</h3>
-            <input type="file" id="bg-image" accept="image/*">
         </label>
-      </div>
+            <img class="bg-img-thumb" data-img="red" src="${redBg}">
+            <img class="bg-img-thumb" data-img="blue" src="${blueBg}">
+            <img class="bg-img-thumb" data-img="green" src="${greenBg}">
+            <img class="bg-img-thumb" data-img="pink" src="${pinkBg}">
+
+            <input type="file" id="bg-image" accept="image/*">
+        </div>
+
   
       <!-- FONT -->
       <fieldset class="font-group">
@@ -102,6 +104,27 @@ export function createUI(onUpdate, onSave) {
     const bgSwatches = ui.querySelectorAll('.bg-swatch')
     const customBgSwatch = ui.querySelector('.bg-swatch[data-color="custom"]')
   
+    const bgThumbs = ui.querySelectorAll(".bg-img-thumb")
+
+    bgThumbs.forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+          
+          // highlight UI
+          bgThumbs.forEach((t) => t.classList.remove("is-active"))
+          thumb.classList.add("is-active")
+      
+          const chosen = thumb.dataset.img
+          window.selectedPresetBg = chosen // store globally
+      
+          // remove custom color + upload
+          window.bgColorInput.value = "#05060a"
+          window.bgImageInput.value = ""
+          
+          onUpdate()
+        })
+      })
+      
+
     // BAG COLOR LOGIC
     swatches.forEach((btn) => {
       btn.addEventListener('click', () => {
