@@ -51,7 +51,7 @@ a:hover {
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 400px;
+  width: 40%;
   max-height: calc(100vh - 40px);
   padding: 18px 18px 16px;
   border-radius: 20px;
@@ -211,6 +211,62 @@ a:hover {
     0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
+.bg-swatch {
+  padding: 0;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  transition:
+    transform 0.16s ease-out,
+    box-shadow 0.16s ease-out,
+    border-color 0.16s ease-out;
+
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    object-fit: cover;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: 0.2s;
+}
+
+.bg-swatch::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  background: var(--swatch-color, #ccc);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.18),
+    0 4px 10px rgba(0, 0, 0, 0.28);
+}
+
+
+.bg-swatch[data-color='custom']::before {
+  background: conic-gradient(
+    from 0deg,
+    #ff4b4b,
+    #ffd93b,
+    #4cff88,
+    #4ba3ff,
+    #c44bff,
+    #ff4b4b
+  );
+}
+
+.bg-swatch:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.bg-swatch.is-active {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
 /* ====== FONT RADIO GROUP ====== */
 
 .font-group {
@@ -322,61 +378,111 @@ a:hover {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* ====== MOBILE ====== */
+/* ====== DESKTOP: Zak links — UI rechts ====== */
+
+@media (min-width: 801px) {
+  body {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  #app {
+    width: calc(100vw - 320px);
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ui {
+    position: relative;
+    width: 320px;
+    height: 100vh;
+    right: 0;
+    top: 0;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: -4px 0 18px rgba(0,0,0,0.35);
+  }
+}
+
+/* ====== MOBILE: Zak boven — UI onder ====== */
 
 @media (max-width: 800px) {
-  .ui {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    left: auto;
-    bottom: auto;
-    width: 61vw;
-    max-height: 41vh;
-    margin: 0;
-    border-radius: 18px;
-    padding: 10px 12px 12px;
+  body {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    box-shadow:
-      0 14px 30px rgba(0, 0, 0, 0.65),
-      0 0 0 1px rgba(255, 255, 255, 0.18);
+    overflow: hidden;
+  }
+
+  #app {
+    width: 100vw;
+    height: 60vh;
+    padding: 0;
+    margin: 0;
+  }
+
+  .ui {
+    position: relative;
+    width: 100%;
+    height: 40vh;
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    border-radius: 18px 18px 0 0;
+    padding: 12px 16px;
     overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 0 -10px 25px rgba(0,0,0,0.45);
   }
+}
 
-  .ui h2 {
-    font-size: 0.85rem;
-    margin-bottom: 2px;
-  }
+.background-group {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(120, 70, 10, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-  label {
-    font-size: 0.75rem;
-  }
+.background-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .ui input,
-  .ui select,
-  .ui textarea {
-    font-size: 0.78rem;
-    padding: 5px 7px;
-  }
+.bg-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
 
-  .color-presets {
-    gap: 4px;
-  }
+.bg-images {
+  display: flex;
+  gap: 8px;
+}
 
-  .color-swatch {
-    width: 22px;
-    height: 22px;
-  }
+.bg-img-thumb {
+  width: 30px;
+  height: 30px;
+  border-radius: 5px;
+  object-fit: cover;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  transition: 0.2s;
+}
 
-  .button-row {
-    margin-top: 6px;
-    gap: 6px;
-  }
+.bg-img-thumb:hover {
+  transform: scale(1.05);
+}
 
-  .button-row button {
-    font-size: 0.78rem;
-    padding: 6px 7px;
-  }
+.bg-img-thumb.is-active {
+  outline: 2px solid white;
+  box-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
