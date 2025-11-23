@@ -19,16 +19,16 @@ export function createUI(onUpdate, onSave) {
       <div class="color-presets">
         <h3>Bag color</h3>
         <div class="colors">
+                  <button type="button" class="color-swatch" data-color="custom"></button>
+          <input type="color" id="bag-color" value="#d32b2b" class="color-input-hidden">
+
           <button type="button" class="color-swatch is-active" data-color="#d32b2b" style="--swatch-color:#d32b2b"></button>
           <button type="button" class="color-swatch" data-color="#f5a623" style="--swatch-color:#f5a623"></button>
           <button type="button" class="color-swatch" data-color="#0077c8" style="--swatch-color:#0077c8"></button>
           <button type="button" class="color-swatch" data-color="#1c9c5b" style="--swatch-color:#1c9c5b"></button>
           <button type="button" class="color-swatch" data-color="#ffc928" style="--swatch-color:#ffc928"></button>
           <button type="button" class="color-swatch" data-color="#4a1f5c" style="--swatch-color:#4a1f5c"></button>
-  
-          <button type="button" class="color-swatch" data-color="custom"></button>
-          <input type="color" id="bag-color" value="#d32b2b" class="color-input-hidden">
-        </div>
+          </div>
       </div>
   
       <!-- BACKGROUND -->       

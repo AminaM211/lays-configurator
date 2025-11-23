@@ -2,16 +2,16 @@
 import * as THREE from "three"
 import "./style.css"
 import { createUI } from "./ui"
-import axios from "axios"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import laysLogo from "./assets/lays.png"
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
 
 import backImg1 from "./assets/back-img1.png"
 import backImg2 from "./assets/back-img2.png"
 
 const app = document.querySelector("#app")
 const bgBox = document.getElementById("bg-box")
-
 
 // ------------------------------
 // RENDERER
@@ -25,9 +25,9 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(window.devicePixelRatio)
 app.appendChild(renderer.domElement)
 
-const textureLoader = new THREE.TextureLoader()
-let bgTextureUrl = null
-let usingBgImage = false
+// const textureLoader = new THREE.TextureLoader()
+// let bgTextureUrl = null
+// let usingBgImage = false
 
 // ------------------------------
 // SCENE + CAMERA
@@ -41,8 +41,7 @@ const camera = new THREE.PerspectiveCamera(
   100
 )
 
-//camera.position.set(-1, 2, 4)
-camera.position.set(-1.4, 1.9, 4.4)
+camera.position.set(0, 2, 4)
 
 scene.add(camera)
 
@@ -61,8 +60,9 @@ controls.dampingFactor = 0.05
 
 function updateControlsTarget() {
   const isMobile = window.innerWidth <= 800
+  if (!bag) return
   bag.position.x = isMobile ? 0 : 0.6
-  bag.position.y = isMobile ? 2 : 1
+  bag.position.y = isMobile ? 2.8 : 1.9
   controls.target.set(isMobile ? 0 : 0.6, isMobile ? 1 : 1, 0)
   controls.update()
 }
@@ -77,23 +77,27 @@ scene.add(new THREE.AmbientLight(0xffffff, 0.8))
 // ------------------------------
 // BAG
 // ------------------------------
-const geometry = new THREE.BoxGeometry(1.2, 2, 0.2)
+let bag
 
-const sideMaterial = new THREE.MeshStandardMaterial({ color: "#ffffff" })
-const frontMaterial = new THREE.MeshStandardMaterial({ color: "#ffffff" })
-const backMaterial = new THREE.MeshStandardMaterial({ color: "#ffffff" })
+function loadBagModel() {
+  const mtlLoader = new MTLLoader()
+  mtlLoader.load('/src/assets/chips-bag-obj/bag.mtl', (materials) => {
+    materials.preload()
 
-const bag = new THREE.Mesh(geometry, [
-  sideMaterial,
-  sideMaterial.clone(),
-  sideMaterial.clone(),
-  sideMaterial.clone(),
-  frontMaterial,
-  backMaterial
-])
+    const objLoader = new OBJLoader()
+    objLoader.setMaterials(materials)
 
-scene.add(bag)
-updateControlsTarget()
+    objLoader.load('/src/assets/chips-bag-obj/bag.obj', (object) => {
+      bag = object
+      bag.scale.set(0.5, 0.5, 0.6)
+      bag.position.set(0.6, 1, 0)
+      scene.add(bag)
+      updateControlsTarget()
+    })
+  })
+}
+
+// updateControlsTarget()
 
 // ------------------------------
 // CONFIG
@@ -111,11 +115,6 @@ const config = {
 // ------------------------------
 // IMAGES
 // ------------------------------
-const customImage = new Image()
-let customImageLoaded = false
-let customImageUrl = null
-
-let textTexture = null
 
 const logoImg = new Image()
 let logoLoaded = false
@@ -125,21 +124,20 @@ logoImg.onload = () => {
   updateBagTexture()
 }
 
-// back images
 const backImage1 = new Image()
 const backImage2 = new Image()
-let backLoaded = 0
+let backsReady = 0
 
 backImage1.src = backImg1
 backImage2.src = backImg2
 
-const tryMakeBack = () => {
-  backLoaded++
-  if (backLoaded === 2) createBackTexture()
-}
+backImage1.onload = () => { backsReady++; if (backsReady === 2) createBackTexture() }
+backImage2.onload = () => { backsReady++; if (backsReady === 2) createBackTexture() }
 
-backImage1.onload = tryMakeBack
-backImage2.onload = tryMakeBack
+let customImageLoaded = false
+let customImageUrl = null
+const customImage = new Image()
+
 
 // ------------------------------
 // BACK TEXTURE
@@ -192,8 +190,18 @@ function createBackTexture() {
   ctx.drawImage(backImage2, 560, 200, 360, 520)
 
   const tex = new THREE.CanvasTexture(canvas)
-  bag.material[5].map = tex
-  bag.material[5].needsUpdate = true
+  tex.flipY = false
+
+  if (!bag) return 
+
+  bag.traverse((child) => {
+      if (child.isMesh && child.material && child.material.name === "front") {
+          child.material.map = tex
+          child.material.needsUpdate = true
+      }
+  })
+  
+
 }
 
 // ------------------------------
@@ -343,14 +351,20 @@ ctx.fillText("INGREDIENTS", canvas.width - 160, canvas.height - 75);
   bgBox.style.backgroundImage = `url(${url})`
 })
 
+// APPLY FRONT TEXTURE
+const tex = new THREE.CanvasTexture(canvas)
+tex.flipY = false
 
-  // APPLY FRONT TEXTURE
-  if (textTexture) textTexture.dispose()
-  textTexture = new THREE.CanvasTexture(canvas)
-
-  bag.material[4].map = textTexture
-  bag.material[4].needsUpdate = true
+if (bag) {
+  bag.traverse((child) => {
+    if (child.isMesh && child.material && child.material.name === "back") {
+      child.material.map = tex
+      child.material.needsUpdate = true
+    }
+  })
 }
+
+  }
 
 // ------------------------------
 // UPDATE CONFIG
@@ -390,15 +404,13 @@ function updateConfig() {
     .map((s) => s.trim())
     .filter(Boolean)
 
+  if (!bag) return
+// BACK TEXTURE
+if (bag) createBackTexture()
 
-   // SIDE MATERIAL COLORS
-  for (let i = 0; i < 4; i++) {
-    bag.material[i].color.set(config.bagColor)
+  // FRONT TEXTURE
+  if (bag) updateBagTexture()
   }
-
-  createBackTexture()
-  updateBagTexture()
-}
 
 // ------------------------------
 // SAVE
@@ -437,6 +449,9 @@ window.bgColorInput.addEventListener("input", () => {
 window.bgImageInput.addEventListener("change", () => {
   updateBagTexture()
 })
+
+loadBagModel()
+updateConfig()
 
 // first render
 updateConfig()
