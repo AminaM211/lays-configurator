@@ -12,7 +12,7 @@ export function createUI(onUpdate, onSave) {
       <h2>Customize your bag</h2>
   
       <label class="h3">Name:
-        <input type="text" id="bag-name" placeholder="Bag name">
+        <input type="text" id="bag-name" maxlength="26" placeholder="Bag name">
       </label>
   
       <!-- BAG COLOR -->
@@ -22,12 +22,12 @@ export function createUI(onUpdate, onSave) {
                   <button type="button" class="color-swatch" data-color="custom"></button>
           <input type="color" id="bag-color" value="#d32b2b" class="color-input-hidden">
 
-          <button type="button" class="color-swatch is-active" data-color="#d32b2b" style="--swatch-color:#d32b2b"></button>
-          <button type="button" class="color-swatch" data-color="#f5a623" style="--swatch-color:#f5a623"></button>
+          <button type="button" class="color-swatch is-active" data-color="#BE0003" style="--swatch-color:#BE0003"></button>
+          <button type="button" class="color-swatch" data-color="#FF6F00" style="--swatch-color:#FF6F00"></button>
+          <button type="button" class="color-swatch" data-color="#9100D3" style="--swatch-color:#9100D3"></button>
+          <button type="button" class="color-swatch" data-color="#FF35B2" style="--swatch-color:#FF35B2"></button>
           <button type="button" class="color-swatch" data-color="#0077c8" style="--swatch-color:#0077c8"></button>
-          <button type="button" class="color-swatch" data-color="#1c9c5b" style="--swatch-color:#1c9c5b"></button>
-          <button type="button" class="color-swatch" data-color="#ffc928" style="--swatch-color:#ffc928"></button>
-          <button type="button" class="color-swatch" data-color="#4a1f5c" style="--swatch-color:#4a1f5c"></button>
+          <button type="button" class="color-swatch" data-color="#2DC925" style="--swatch-color:#2DC925"></button>
           </div>
       </div>
   

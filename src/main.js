@@ -71,7 +71,8 @@ function updateControlsTarget() {
 // LIGHTS
 // ------------------------------
 scene.add(new THREE.DirectionalLight(0xffffff, 1))
-scene.add(new THREE.AmbientLight(0xffffff, 0.8))
+scene.add(new THREE.AmbientLight(0xffffff, 0.5 ))
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2))
 
 
 // ------------------------------
@@ -93,11 +94,10 @@ function loadBagModel() {
       bag.position.set(0.6, 1, 0)
       scene.add(bag)
       updateControlsTarget()
+      tryInitTextures()
     })
   })
 }
-
-// updateControlsTarget()
 
 // ------------------------------
 // CONFIG
@@ -110,8 +110,6 @@ const config = {
   backgroundColor: "#05060a"
 }
 
-// scene.background = new THREE.Color(config.backgroundColor)
-
 // ------------------------------
 // IMAGES
 // ------------------------------
@@ -122,6 +120,7 @@ logoImg.src = laysLogo
 logoImg.onload = () => {
   logoLoaded = true
   updateBagTexture()
+  tryInitTextures()
 }
 
 const backImage1 = new Image()
@@ -200,8 +199,6 @@ function createBackTexture() {
           child.material.needsUpdate = true
       }
   })
-  
-
 }
 
 // ------------------------------
@@ -219,7 +216,7 @@ function updateBagTexture() {
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   const grad = ctx.createRadialGradient(512, 512, 80, 512, 512, 520)
-  grad.addColorStop(0, "rgba(255,255,255,0.3)")
+  grad.addColorStop(0, "rgba(255,255,255,0.8)")
   grad.addColorStop(1, "rgba(255,255,255,0)")
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -451,6 +448,13 @@ window.bgImageInput.addEventListener("change", () => {
 })
 
 loadBagModel()
+function tryInitTextures() {
+  if (bag && logoLoaded && backImage1.complete) {
+    createBackTexture()
+    updateBagTexture()
+  }
+}
+
 updateConfig()
 
 // first render
