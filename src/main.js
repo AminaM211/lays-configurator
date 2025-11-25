@@ -1,6 +1,7 @@
 // src/main.js
 import * as THREE from "three"
 import "./style.css"
+import axios from "axios"
 import { createUI } from "./ui"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import laysLogo from "./assets/lays.png"
@@ -410,11 +411,55 @@ if (bag) createBackTexture()
   }
 
 // ------------------------------
-// SAVE
+// SAVE TO API
 // ------------------------------
+
 async function saveToAPI() {
-  alert("saving disabled in demo")
+  const TOKEN =
+    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s'
+
+  const imageInput = document.querySelector('#bag-image')
+  const bgImageInput = document.querySelector('#bg-image')
+
+  const form = new FormData()
+
+  form.append("name", config.name)
+  form.append("bagColor", config.bagColor)
+  form.append("font", config.font)
+  form.append("keyFlavours", JSON.stringify(config.keyFlavours))
+  form.append("backgroundColor", config.backgroundColor)
+
+  // VOORKANT IMAGE (user image)
+  if (imageInput.files && imageInput.files[0]) {
+    form.append("image", imageInput.files[0])
+  }
+
+  // BACKGROUND IMAGE (optioneel)
+  if (bgImageInput.files && bgImageInput.files[0]) {
+    form.append("backgroundImage", bgImageInput.files[0])
+  }
+
+  try {
+    await axios.post(
+      "http://localhost:4000/api/v1/bag",
+      form,
+      {
+        headers: {
+          "Authorization": TOKEN,
+          "Content-Type": "multipart/form-data"
+        }
+      }
+    )
+
+    alert("Uploaded!")
+
+  } catch (err) {
+    console.error(err)
+    alert("Failed to upload")
+  }
 }
+
+
 
 // ------------------------------
 // ANIMATION LOOP

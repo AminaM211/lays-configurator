@@ -74,7 +74,7 @@ export function createUI(onUpdate, onSave) {
   
       <!-- FLAVOURS -->
       <label class="h3">Key flavours:
-        <textarea id="bag-flavours" placeholder="salt, pepper" maxlength="40" style="resize: none;"></textarea>
+        <textarea id="bag-flavours" placeholder="salt, pepper" maxlength="50" style="resize: none;"></textarea>
       </label>
   
       <!-- BUTTONS -->
