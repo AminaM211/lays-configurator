@@ -26,10 +26,6 @@ renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(window.devicePixelRatio)
 app.appendChild(renderer.domElement)
 
-// const textureLoader = new THREE.TextureLoader()
-// let bgTextureUrl = null
-// let usingBgImage = false
-
 // ------------------------------
 // SCENE + CAMERA
 // ------------------------------
@@ -74,7 +70,6 @@ function updateControlsTarget() {
 scene.add(new THREE.DirectionalLight(0xffffff, 1))
 scene.add(new THREE.AmbientLight(0xffffff, 0.5 ))
 scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2))
-
 
 // ------------------------------
 // BAG
@@ -316,12 +311,9 @@ ctx.fillText("INGREDIENTS", canvas.width - 160, canvas.height - 75);
 
 
   // --------------------------
-  // BACKGROUND UPDATE FIXED 🚀
+  // BACKGROUND HANDLING
   // --------------------------
- // ------- BACKGROUND HANDLING -------
  const loader = new THREE.TextureLoader()
-
- // 1. Thumbnails (preset images)
  window.bgThumbs = document.querySelectorAll(".bg-img-thumb")
 
  window.bgThumbs.forEach(thumb => {
@@ -349,7 +341,6 @@ ctx.fillText("INGREDIENTS", canvas.width - 160, canvas.height - 75);
   bgBox.style.backgroundImage = `url(${url})`
 })
 
-// APPLY FRONT TEXTURE
 const tex = new THREE.CanvasTexture(canvas)
 tex.flipY = false
 
@@ -361,8 +352,7 @@ if (bag) {
     }
   })
 }
-
-  }
+}
 
 // ------------------------------
 // UPDATE CONFIG
@@ -403,17 +393,14 @@ function updateConfig() {
     .filter(Boolean)
 
   if (!bag) return
-// BACK TEXTURE
-if (bag) createBackTexture()
-
-  // FRONT TEXTURE
+  if (bag) createBackTexture()
   if (bag) updateBagTexture()
   }
+
 
 // ------------------------------
 // SAVE TO API
 // ------------------------------
-
 async function saveToAPI() {
   const TOKEN =
     'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s'
@@ -450,7 +437,6 @@ async function saveToAPI() {
         }
       }
     )
-
     alert("Uploaded!")
 
   } catch (err) {
@@ -458,8 +444,6 @@ async function saveToAPI() {
     alert("Failed to upload")
   }
 }
-
-
 
 // ------------------------------
 // ANIMATION LOOP
@@ -470,8 +454,6 @@ function animate() {
   renderer.render(scene, camera)
 }
 animate()
-
-
 
 // ------------------------------
 // UI INITIALIZE
@@ -487,7 +469,6 @@ window.bgColorInput.addEventListener("input", () => {
   bgBox.style.backgroundColor = config.backgroundColor
 })
 
-
 window.bgImageInput.addEventListener("change", () => {
   updateBagTexture()
 })
@@ -500,9 +481,6 @@ function tryInitTextures() {
   }
 }
 
-updateConfig()
-
-// first render
 updateConfig()
 
 // --- SET DEFAULT BACKGROUND TO RED ---
