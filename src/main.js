@@ -17,6 +17,7 @@ const bgBox = document.getElementById("bg-box")
 // ------------------------------
 // RENDERER
 // ------------------------------
+
 const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: true
@@ -47,6 +48,7 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
 })
+
 
 // ------------------------------
 // CONTROLS
@@ -103,8 +105,13 @@ const config = {
   bagColor: "#d32b2b",
   font: "Helvetica",
   keyFlavours: [],
-  backgroundColor: "#05060a"
+  backgroundColor: "#05060a",
+  backgroundPreset: null,   // ← nieuw
+  backgroundImageBase64: null // ← als user upload doet
 }
+
+window.config = config;
+
 
 // ------------------------------
 // IMAGES
@@ -314,32 +321,21 @@ ctx.fillText("INGREDIENTS", canvas.width - 160, canvas.height - 75);
   // BACKGROUND HANDLING
   // --------------------------
  const loader = new THREE.TextureLoader()
- window.bgThumbs = document.querySelectorAll(".bg-img-thumb")
-
- window.bgThumbs.forEach(thumb => {
-   thumb.addEventListener("click", () => {
-     const imgName = thumb.dataset.img
-     const map = {
-       blue:  "/src/assets/blue-bg.png",
-       green: "/src/assets/green-bg.png",
-       pink:  "/src/assets/pink-bg.png",
-       red:   "/src/assets/red-bg.png",
-     }
  
-     bgBox.style.backgroundColor = "transparent"
-     bgBox.style.backgroundImage = `url(${map[imgName]})`
-   })
- })
- 
- window.bgImageInput.addEventListener("change", () => {
+window.bgImageInput.addEventListener("change", () => {
   const file = bgImageInput.files[0]
   if (!file) return
 
-  const url = URL.createObjectURL(file)
+  const reader = new FileReader();
+  reader.onload = () => {
+    config.backgroundPreset = null
+    config.backgroundImageBase64 = reader.result
+  }
+  reader.readAsDataURL(file)
 
-  bgBox.style.backgroundColor = "transparent"
-  bgBox.style.backgroundImage = `url(${url})`
+  updateBagTexture()
 })
+
 
 const tex = new THREE.CanvasTexture(canvas)
 tex.flipY = false
@@ -368,20 +364,19 @@ function updateConfig() {
   config.bagColor = colorInput.value
   config.font = fontInput.value
 
-  // CUSTOM IMAGE
-  if (imageInput.files && imageInput.files[0]) {
-    const f = imageInput.files[0]
+// CUSTOM IMAGE
+if (imageInput.files && imageInput.files[0]) {
+  if (customImageUrl) URL.revokeObjectURL(customImageUrl);
+  customImageUrl = URL.createObjectURL(imageInput.files[0]);
 
-    if (customImageUrl) URL.revokeObjectURL(customImageUrl)
-    customImageUrl = URL.createObjectURL(f)
+  customImageLoaded = false;
+  customImage.src = customImageUrl;
 
-    customImageLoaded = false
-    customImage.src = customImageUrl
-    customImage.onload = () => {
-      customImageLoaded = true
-      updateBagTexture()
-    }
-  }
+  customImage.onload = () => {
+    customImageLoaded = true;
+    updateBagTexture();
+  };
+}  
 
   // FLAVOURS
   const raw = flavoursInput.value.slice(0, 60)
@@ -402,59 +397,48 @@ function updateConfig() {
 // SAVE TO API
 // ------------------------------
 async function saveToAPI() {
-  const TOKEN =
-    'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5MjA1YmExMDc2YTg5YmQwMjI3ZWU2YiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AYWRtaW4uY29tIiwiaWF0IjoxNzYzNzI5NDA1LCJleHAiOjE3NjM3NDM4MDV9.n8Ip5mYDYfFha1ouT2c1FsMMg4ETD86ai0oIaMEup2s'
+  const imageInput = document.querySelector("#bag-image");
 
-  const imageInput = document.querySelector('#bag-image')
-  const bgImageInput = document.querySelector('#bg-image')
-
-  const form = new FormData()
-
-  form.append("name", config.name)
-  form.append("bagColor", config.bagColor)
-  form.append("font", config.font)
-  form.append("keyFlavours", JSON.stringify(config.keyFlavours))
-  form.append("backgroundColor", config.backgroundColor)
-
-  if (imageInput.files[0]) {
-    const file = imageInput.files[0];
-    const base64 = await toBase64(file);
-    form.append("frontImage", base64);
-  }
-  
-  if (bgImageInput.files[0]) {
-    const file = bgImageInput.files[0];
-    const base64 = await toBase64(file);
-    form.append("backgroundImage", base64);
-  }
-  
-  function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-  
-
-  try {
+  // --- HELPER: save naar API ---
+  async function sendPayload(imgBase64) {
     const payload = {
       name: config.name,
       bagColor: config.bagColor,
       font: config.font,
       keyFlavours: config.keyFlavours,
-      backgroundColor: config.backgroundColor
+      backgroundColor: config.backgroundColor,
+      image: imgBase64 || null,
+      backgroundPreset: config.backgroundPreset || null,
+      backgroundImage: config.backgroundImageBase64 || null
+    };
+
+    try {
+      await axios.post("http://localhost:4000/api/v1/bag", payload);
+      alert("Saved!");
+    } catch (err) {
+      console.error("API error:", err);
+      alert("Error saving");
     }
-
-    await axios.post("http://localhost:4000/api/v1/bag", payload)
-
-    alert("Saved!")
-  } catch (err) {
-    console.error(err)
-    alert("Error saving")
   }
+
+  // --- CASE 1: er is een image ---
+  if (imageInput.files && imageInput.files[0]) {
+    const file = imageInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64 = reader.result;   // ← echte afbeelding
+      sendPayload(base64);            // ← save met image
+    };
+
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  // --- CASE 2: geen image ---
+  sendPayload(null);
 }
+
 
 // ------------------------------
 // ANIMATION LOOP

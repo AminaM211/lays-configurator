@@ -107,23 +107,25 @@ export function createUI(onUpdate, onSave) {
     const bgThumbs = ui.querySelectorAll(".bg-img-thumb")
 
     bgThumbs.forEach((thumb) => {
-        thumb.addEventListener("click", () => {
+      thumb.addEventListener("click", () => {
+    
+      // active UI
+      bgThumbs.forEach(t => t.classList.remove("is-active"));
+      thumb.classList.add("is-active");
+
+      // update config
+      window.config.backgroundPreset = thumb.dataset.img;
+      window.config.backgroundImageBase64 = null;
+
+      // reset color & upload
+      window.bgColorInput.value = "#05060a";
+      window.bgImageInput.value = "";
+    
+        // update config in main.js
+        onUpdate();
+      });
+    });
           
-          // highlight UI
-          bgThumbs.forEach((t) => t.classList.remove("is-active"))
-          thumb.classList.add("is-active")
-      
-          const chosen = thumb.dataset.img
-          window.selectedPresetBg = chosen // store globally
-      
-          // remove custom color + upload
-          window.bgColorInput.value = "#05060a"
-          window.bgImageInput.value = ""
-          
-          onUpdate()
-        })
-      })
-      
 
     // BAG COLOR LOGIC
     swatches.forEach((btn) => {
@@ -171,27 +173,6 @@ export function createUI(onUpdate, onSave) {
   
     bgImageInput.addEventListener('input', onUpdate)
   
-    // PRESET BACKGROUND IMAGES
-const bgImageThumbs = ui.querySelectorAll(".bg-img-thumb")
-
-bgImageThumbs.forEach(img => {
-  img.addEventListener("click", () => {
-    // visual toggle
-    bgImageThumbs.forEach(i => i.classList.remove("is-active"))
-    img.classList.add("is-active")
-
-    // override color selection (deselect color swatches)
-    bgSwatches.forEach(b => b.classList.remove("is-active"))
-
-    // clear input
-    bgImageInput.value = ""
-
-    // send mode + file name to main.js
-    window.selectedPresetBg = img.dataset.img
-
-    onUpdate()
-  })
-})
 
     // BASIC FIELDS
     nameInput.addEventListener('input', onUpdate)
