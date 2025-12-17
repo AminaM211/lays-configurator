@@ -416,32 +416,43 @@ async function saveToAPI() {
   form.append("keyFlavours", JSON.stringify(config.keyFlavours))
   form.append("backgroundColor", config.backgroundColor)
 
-  // VOORKANT IMAGE (user image)
-  if (imageInput.files && imageInput.files[0]) {
-    form.append("image", imageInput.files[0])
+  if (imageInput.files[0]) {
+    const file = imageInput.files[0];
+    const base64 = await toBase64(file);
+    form.append("frontImage", base64);
   }
-
-  // BACKGROUND IMAGE (optioneel)
-  if (bgImageInput.files && bgImageInput.files[0]) {
-    form.append("backgroundImage", bgImageInput.files[0])
+  
+  if (bgImageInput.files[0]) {
+    const file = bgImageInput.files[0];
+    const base64 = await toBase64(file);
+    form.append("backgroundImage", base64);
   }
+  
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  
 
   try {
-    await axios.post(
-      "http://localhost:4000/api/v1/bag",
-      form,
-      {
-        headers: {
-          "Authorization": TOKEN,
-          "Content-Type": "multipart/form-data"
-        }
-      }
-    )
-    alert("Uploaded!")
+    const payload = {
+      name: config.name,
+      bagColor: config.bagColor,
+      font: config.font,
+      keyFlavours: config.keyFlavours,
+      backgroundColor: config.backgroundColor
+    }
 
+    await axios.post("http://localhost:4000/api/v1/bag", payload)
+
+    alert("Saved!")
   } catch (err) {
     console.error(err)
-    alert("Failed to upload")
+    alert("Error saving")
   }
 }
 
