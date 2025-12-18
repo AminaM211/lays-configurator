@@ -3,12 +3,12 @@ import * as THREE from "three"
 import "./style.css"
 import { createUI } from "./ui"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import laysLogo from "./assets/lays.png"
+import laysLogo from "./public/assets/lays.png"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
 
-import backImg1 from "./assets/back-img1.png"
-import backImg2 from "./assets/back-img2.png"
+import backImg1 from "./public/assets/back-img1.png"
+import backImg2 from "./public/assets/back-img2.png"
 
 const app = document.querySelector("#app")
 const bgBox = document.getElementById("bg-box")
@@ -79,13 +79,13 @@ let bag
 
 function loadBagModel() {
   const mtlLoader = new MTLLoader()
-  mtlLoader.load('/src/assets/chips-bag-obj/bag.mtl', (materials) => {
+  mtlLoader.load('/src/public/assets/chips-bag-obj/bag.mtl', (materials) => {
     materials.preload()
 
     const objLoader = new OBJLoader()
     objLoader.setMaterials(materials)
 
-    objLoader.load('/src/assets/chips-bag-obj/bag.obj', (object) => {
+    objLoader.load('/src/public/assets/chips-bag-obj/bag.obj', (object) => {
       bag = object
       bag.scale.set(0.5, 0.5, 0.6)
       bag.position.set(0.6, 1, 0)
@@ -509,7 +509,7 @@ updateConfig()
 
 // --- SET DEFAULT BACKGROUND TO RED ---
 window.selectedPresetBg = "red"
-bgBox.style.backgroundImage = 'url("/src/assets/red-bg.png")'
+bgBox.style.backgroundImage = 'url("/src/public/assets/red-bg.png")'
 bgBox.style.backgroundColor = "transparent"
 
 // rode thumbnail actief maken
