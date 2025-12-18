@@ -1,7 +1,6 @@
 // src/main.js
 import * as THREE from "three"
 import "./style.css"
-import axios from "axios"
 import { createUI } from "./ui"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import laysLogo from "./assets/lays.png"
@@ -413,8 +412,38 @@ async function saveToAPI() {
     };
 
     try {
-      await axios.post("http://localhost:4000/api/v1/bag", payload);
-      alert("Saved!");
+      async function sendPayload(imgBase64) {
+        const payload = {
+          name: config.name,
+          bagColor: config.bagColor,
+          font: config.font,
+          keyFlavours: config.keyFlavours,
+          backgroundColor: config.backgroundColor,
+          image: imgBase64 || null,
+          backgroundPreset: config.backgroundPreset || null,
+          backgroundImage: config.backgroundImageBase64 || null
+        };
+      
+        try {
+          const res = await fetch("http://localhost:4000/api/v1/bag", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+      
+          if (!res.ok) {
+            throw new Error(`HTTP error ${res.status}`);
+          }
+      
+          alert("Saved!");
+        } catch (err) {
+          console.error("API error:", err);
+          alert("Error saving");
+        }
+      }
+            alert("Saved!");
     } catch (err) {
       console.error("API error:", err);
       alert("Error saving");
