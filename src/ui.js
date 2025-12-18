@@ -1,8 +1,8 @@
 // src/ui.js
-import blueBg from "./assets/blue-bg.png"
-import greenBg from "./assets/green-bg.png"
-import pinkBg from "./assets/pink-bg.png"
-import redBg from "./assets/red-bg.png"
+import blueBg from "./public/assets/blue-bg.png"
+import greenBg from "./public/assets/green-bg.png"
+import pinkBg from "./public/assets/pink-bg.png"
+import redBg from "./public/assets/red-bg.png"
 
 export function createUI(onUpdate, onSave) {
     const ui = document.createElement('div')
