@@ -1,5 +1,3 @@
-/* ====== GLOBAL ====== */
-
 :root {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.5;
@@ -54,7 +52,6 @@ a:hover {
   width: 40%;
   max-height: calc(100vh - 40px);
   padding: 18px 18px 16px;
-  border-radius: 20px;
   background: rgba(255, 232, 141, 0.75);
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.55),
@@ -120,10 +117,8 @@ a:hover {
 
 /* file input minimal */
 .ui input[type="file"] {
-  /* padding: 4px 0; */
   background: transparent;
   cursor: pointer;
-
 }
 
 /* ====== COLOR PRESETS ====== */
@@ -155,10 +150,11 @@ a:hover {
 .color-presets {
   display: flex;
   flex-direction: column;
-  /* flex-wrap: wrap; */
   width: 80%;
   gap: 0px;
 }
+
+
 
 .color-swatch {
   width: 26px;
@@ -211,6 +207,8 @@ a:hover {
     0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
+/* ====== BACKGROUND SWATCH (custom color picker trigger) ====== */
+
 .bg-swatch {
   padding: 0;
   background: transparent;
@@ -222,16 +220,14 @@ a:hover {
     box-shadow 0.16s ease-out,
     border-color 0.16s ease-out;
 
-    width: 35px;
-    height: 35px;
-    border-radius: 5px;
-    object-fit: cover;
-    cursor: pointer;
-    /* box-shadow: 0 2px 6px rgba(0,0,0,0.3); */
-    transition: 0.2s;
-    border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 5px;
+  object-fit: cover;
+  cursor: pointer;
+  transition: 0.2s;
+  border: none;
 }
-
 
 .bg-swatch::before {
   content: '';
@@ -243,7 +239,6 @@ a:hover {
     0 0 0 1px rgba(0, 0, 0, 0.18),
     0 4px 10px rgba(0, 0, 0, 0.28);
 }
-
 
 .bg-swatch[data-color='custom']::before {
   background: conic-gradient(
@@ -265,6 +260,7 @@ a:hover {
   border: 2px solid white;
   box-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
+
 /* ====== FONT RADIO GROUP ====== */
 
 .font-group {
@@ -489,6 +485,7 @@ a:hover {
   box-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
 
+/* ====== BACKGROUND BOX (centered square) ====== */
 #bg-box {
   position: fixed;
   width: 75vh;
@@ -496,31 +493,50 @@ a:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 0; /* Lower z-index to ensure it appears below #app and .ui */
+  z-index: 0;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 20px;
 }
 
+/* mobile sizing */
 @media (max-width: 800px) {
   #bg-box {
-      width: 55vh;
-      height: 55vh;
-      top: 30%;
+    width: 55vh;
+    height: 55vh;
+    top: 30%;
   }
 }
 
+/* layering */
 #app {
   position: relative;
   z-index: 1;
 }
 
 .ui {
-  position: fixed;
-  z-index: 10; /* Keep .ui on top */
+  z-index: 10;
 }
 
 body {
   background: transparent !important;
+}
+
+/* ====== PRESET BACKGROUNDS VIA CLASS (so default can be in HTML) ====== */
+#bg-box.bg-red {
+  background-image: url("/assets/red-bg.png");
+  background-color: transparent;
+}
+#bg-box.bg-blue {
+  background-image: url("/assets/blue-bg.png");
+  background-color: transparent;
+}
+#bg-box.bg-green {
+  background-image: url("/assets/green-bg.png");
+  background-color: transparent;
+}
+#bg-box.bg-pink {
+  background-image: url("/assets/pink-bg.png");
+  background-color: transparent;
 }

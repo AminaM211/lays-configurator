@@ -1,212 +1,164 @@
 // src/ui.js
-import blueBg from "/assets/blue-bg.png"
-import greenBg from "/assets/green-bg.png"
-import pinkBg from "/assets/pink-bg.png"
-import redBg from "/assets/red-bg.png"
+export function initUI(onUpdate, onSave) {
+  const $ = (q) => document.querySelector(q)
 
-export function createUI(onUpdate, onSave) {
-    const ui = document.createElement('div')
-    ui.className = 'ui'
-  
-    ui.innerHTML = `
-      <h2>Customize your bag</h2>
-  
-      <label class="h3">Name:
-        <input type="text" id="bag-name" maxlength="26" placeholder="Bag name">
-      </label>
-  
-      <!-- BAG COLOR -->
-      <div class="color-presets">
-        <h3>Bag color</h3>
-        <div class="colors">
-                  <button type="button" class="color-swatch" data-color="custom"></button>
-          <input type="color" id="bag-color" value="#d32b2b" class="color-input-hidden">
+  const bgBox = $("#bg-box")
+  const presetClasses = ["bg-red", "bg-blue", "bg-green", "bg-pink"]
 
-          <button type="button" class="color-swatch is-active" data-color="#BE0003" style="--swatch-color:#BE0003"></button>
-          <button type="button" class="color-swatch" data-color="#FF6F00" style="--swatch-color:#FF6F00"></button>
-          <button type="button" class="color-swatch" data-color="#9100D3" style="--swatch-color:#9100D3"></button>
-          <button type="button" class="color-swatch" data-color="#FF35B2" style="--swatch-color:#FF35B2"></button>
-          <button type="button" class="color-swatch" data-color="#0077c8" style="--swatch-color:#0077c8"></button>
-          <button type="button" class="color-swatch" data-color="#2DC925" style="--swatch-color:#2DC925"></button>
-          </div>
-      </div>
-  
-      <!-- BACKGROUND -->       
-       <h3>Background </h3>
-      <div class="background-group">
-        <label class="bg-label">
-          <button type="button" class="bg-swatch" data-color="custom"></button>
-          <input type="color" id="bg-color" value="#d32b2b" class="color-input-hidden">
-        </label>
-            <img class="bg-img-thumb" data-img="red" src="${redBg}">
-            <img class="bg-img-thumb" data-img="blue" src="${blueBg}">
-            <img class="bg-img-thumb" data-img="green" src="${greenBg}">
-            <img class="bg-img-thumb" data-img="pink" src="${pinkBg}">
+  const nameInput = $("#bag-name")
+  const colorInput = $("#bag-color")
+  const imageInput = $("#bag-image")
+  const flavoursInput = $("#bag-flavours")
+  const saveBtn = $("#save-config")
+  const resetBtn = $("#reset-config")
+  const fontRadios = document.querySelectorAll('input[name="bag-font"]')
 
-            <input type="file" id="bg-image" accept="image/*">
-        </div>
+  const bgColorInput = $("#bg-color")
+  const bgImageInput = $("#bg-image")
+  const bgThumbs = document.querySelectorAll(".bg-img-thumb")
+  const swatches = document.querySelectorAll(".color-swatch")
 
-  
-      <!-- FONT -->
-      <fieldset class="font-group">
-        <legend>Font</legend>
-  
-        <label class="font-option">
-          <input type="radio" name="bag-font" value="Helvetica" checked>
-          <span>Helvetica</span>
-        </label>
-  
-        <label class="font-option">
-          <input type="radio" name="bag-font" value="Arial">
-          <span>Arial</span>
-        </label>
-  
-        <label class="font-option">
-          <input type="radio" name="bag-font" value="Impact">
-          <span>Impact</span>
-        </label>
-      </fieldset>
-  
-      <!-- CUSTOM IMAGE -->
-      <label class="h3">Image:
-        <input type="file" id="bag-image" accept="image/*">
-      </label>
-  
-      <!-- FLAVOURS -->
-      <label class="h3">Key flavours:
-        <textarea id="bag-flavours" placeholder="salt, pepper" maxlength="50" style="resize: none;"></textarea>
-      </label>
-  
-      <!-- BUTTONS -->
-      <div class="button-row">
-        <button id="save-config">Upload</button>
-        <button id="reset-config" type="button">Reset design</button>
-      </div>
-    `
-  
-    document.body.appendChild(ui)
-  
-    // ELEMENTS
-    const nameInput = ui.querySelector('#bag-name')
-    const imageInput = ui.querySelector('#bag-image')
-    const flavoursInput = ui.querySelector('#bag-flavours')
-    const saveBtn = ui.querySelector('#save-config')
-    const resetBtn = ui.querySelector('#reset-config')
-  
-    const colorInput = ui.querySelector('#bag-color')
-    const swatches = ui.querySelectorAll('.color-swatch')
-    const customSwatch = ui.querySelector('.color-swatch[data-color="custom"]')
-  
-    const fontRadios = ui.querySelectorAll('input[name="bag-font"]')
-  
-    const bgColorInput = ui.querySelector('#bg-color')
-    const bgImageInput = ui.querySelector('#bg-image')
-    const bgSwatches = ui.querySelectorAll('.bg-swatch')
-    const customBgSwatch = ui.querySelector('.bg-swatch[data-color="custom"]')
-  
-    const bgThumbs = ui.querySelectorAll(".bg-img-thumb")
+  // ------------------------------
+  // BASIC INPUTS
+  // ------------------------------
+  nameInput.addEventListener("input", onUpdate)
+  imageInput.addEventListener("input", onUpdate)
+  flavoursInput.addEventListener("input", onUpdate)
 
-    bgThumbs.forEach((thumb) => {
-      thumb.addEventListener("click", () => {
-    
-      // active UI
-      bgThumbs.forEach(t => t.classList.remove("is-active"));
-      thumb.classList.add("is-active");
+  fontRadios.forEach((r) => r.addEventListener("change", onUpdate))
 
-      // update config
-      window.config.backgroundPreset = thumb.dataset.img;
-      window.config.backgroundImageBase64 = null;
+  // ------------------------------
+  // BAG COLOR SWATCHES
+  // ------------------------------
+  swatches.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      swatches.forEach((b) => b.classList.remove("is-active"))
+      btn.classList.add("is-active")
 
-      // reset color & upload
-      window.bgColorInput.value = "#05060a";
-      window.bgImageInput.value = "";
-    
-        // update config in main.js
-        onUpdate();
-      });
-    });
-          
-
-    // BAG COLOR LOGIC
-    swatches.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        swatches.forEach((b) => b.classList.remove('is-active'))
-        btn.classList.add('is-active')
-  
-        const val = btn.dataset.color
-        if (val === 'custom') {
-          colorInput.click()
-        } else {
-          colorInput.value = val
-          onUpdate()
-        }
-      })
+      const val = btn.dataset.color
+      if (val === "custom") {
+        colorInput.click()
+      } else {
+        colorInput.value = val
+        onUpdate()
+      }
     })
-  
-    colorInput.addEventListener('input', () => {
-      swatches.forEach((b) => b.classList.remove('is-active'))
-      customSwatch.classList.add('is-active')
+  })
+
+  colorInput.addEventListener("input", () => {
+    swatches.forEach((b) => b.classList.remove("is-active"))
+    document.querySelector('.color-swatch[data-color="custom"]')?.classList.add("is-active")
+    onUpdate()
+  })
+
+  // ------------------------------
+  // BACKGROUND PRESETS (CSS classes)
+  // ------------------------------
+  bgThumbs.forEach((thumb) => {
+    thumb.addEventListener("click", () => {
+      bgThumbs.forEach((t) => t.classList.remove("is-active"))
+      thumb.classList.add("is-active")
+
+      // state
+      window.config.backgroundPreset = thumb.dataset.img
+      window.config.backgroundImageBase64 = null
+      window.config.backgroundColor = "#05060a"
+
+      // UI inputs reset
+      bgColorInput.value = "#05060a"
+      bgImageInput.value = ""
+
+      // apply preset class on bg-box
+      bgBox.classList.remove(...presetClasses)
+      bgBox.classList.add(`bg-${thumb.dataset.img}`)
+      bgBox.style.backgroundColor = "transparent" // preset images are used
+      bgBox.style.backgroundImage = "" // ensure inline upload isn't stuck
+
       onUpdate()
     })
-  
-    // BACKGROUND COLOR LOGIC
-    bgSwatches.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        bgSwatches.forEach((b) => b.classList.remove('is-active'))
-        btn.classList.add('is-active')
-  
-        const val = btn.dataset.color
-        if (val === 'custom') {
-          bgColorInput.click()
-        } else {
-          bgColorInput.value = val
-          onUpdate()
-        }
-      })
-    })
-  
-    bgColorInput.addEventListener('input', () => {
-      bgSwatches.forEach((b) => b.classList.remove('is-active'))
-      customBgSwatch.classList.add('is-active')
-      onUpdate()
-    })
-  
-    bgImageInput.addEventListener('input', onUpdate)
-  
+  })
 
-    // BASIC FIELDS
-    nameInput.addEventListener('input', onUpdate)
-    imageInput.addEventListener('input', onUpdate)
-    flavoursInput.addEventListener('input', onUpdate)
-  
-    fontRadios.forEach((r) => {
-      r.addEventListener('change', onUpdate)
-    })
-  
-    // SAVE
-    saveBtn.addEventListener('click', (e) => {
-      e.preventDefault()
-      onSave()
-    })
-  
-    // RESET
-    resetBtn.addEventListener('click', () => {
-      nameInput.value = ''
-      flavoursInput.value = ''
-      imageInput.value = ''
-  
-      colorInput.value = '#d32b2b'
-      swatches.forEach((b, i) => b.classList.toggle('is-active', i === 0))
-  
-      bgColorInput.value = '#05060a'
-      bgImageInput.value = ''
-      bgSwatches.forEach((b, i) => b.classList.toggle('is-active', i === 0))
-  
-      fontRadios.forEach((r) => {
-        r.checked = r.value === 'Helvetica'
-      })
-  
+  // ------------------------------
+  // BACKGROUND COLOR (custom)
+  // ------------------------------
+  bgColorInput.addEventListener("input", () => {
+    window.config.backgroundColor = bgColorInput.value
+    window.config.backgroundPreset = null
+    window.config.backgroundImageBase64 = null
+
+    bgBox.classList.remove(...presetClasses)
+    bgBox.style.backgroundImage = ""
+    bgBox.style.backgroundColor = window.config.backgroundColor
+
+    bgThumbs.forEach((t) => t.classList.remove("is-active"))
+
+    onUpdate()
+  })
+
+  // ------------------------------
+  // BACKGROUND IMAGE UPLOAD (custom)
+  // ------------------------------
+  bgImageInput.addEventListener("change", () => {
+    const file = bgImageInput.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      window.config.backgroundPreset = null
+      window.config.backgroundImageBase64 = reader.result
+
+      bgBox.classList.remove(...presetClasses)
+      bgBox.style.backgroundColor = "transparent"
+      bgBox.style.backgroundImage = `url("${reader.result}")`
+
+      bgThumbs.forEach((t) => t.classList.remove("is-active"))
+
       onUpdate()
-    })
-  }
-  
+    }
+    reader.readAsDataURL(file)
+  })
+
+  // ------------------------------
+  // SAVE
+  // ------------------------------
+  saveBtn.addEventListener("click", (e) => {
+    e.preventDefault()
+    onSave()
+  })
+
+  // ------------------------------
+  // RESET
+  // ------------------------------
+  resetBtn.addEventListener("click", () => {
+    nameInput.value = ""
+    flavoursInput.value = ""
+    imageInput.value = ""
+    colorInput.value = "#d32b2b"
+
+    // reset bg inputs
+    bgColorInput.value = "#05060a"
+    bgImageInput.value = ""
+
+    // reset bg state + visual: back to default red preset
+    window.config.backgroundColor = "#05060a"
+    window.config.backgroundPreset = "red"
+    window.config.backgroundImageBase64 = null
+
+    bgBox.classList.remove(...presetClasses)
+    bgBox.classList.add("bg-red")
+    bgBox.style.backgroundColor = "transparent"
+    bgBox.style.backgroundImage = ""
+
+    bgThumbs.forEach((t) => t.classList.remove("is-active"))
+    document.querySelector('.bg-img-thumb[data-img="red"]')?.classList.add("is-active")
+
+    // reset font
+    fontRadios.forEach((r) => (r.checked = r.value === "Helvetica"))
+
+    // reset active swatch UI (keeps your existing first-active setup)
+    swatches.forEach((b) => b.classList.remove("is-active"))
+    document.querySelector('.color-swatch[data-color="custom"]')?.classList.add("is-active")
+
+    onUpdate()
+  })
+}
