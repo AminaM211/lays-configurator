@@ -10,6 +10,20 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
 import backImg1 from "/assets/back-img1.png"
 import backImg2 from "/assets/back-img2.png"
 
+// ------------------------------
+// TOKEN FROM URL
+// ------------------------------
+const params = new URLSearchParams(window.location.search)
+const token = params.get("token")
+const API_URL = "http://localhost:4000/api/v1"
+const url = `${API_URL}/bag`
+
+
+if (token) {
+  localStorage.setItem("token", token)
+}
+
+
 const app = document.querySelector("#app")
 
 // ------------------------------
@@ -354,7 +368,7 @@ async function saveToAPI() {
 
   async function sendPayload(imgBase64) {
     const token = localStorage.getItem("token");
-// const token = ey;
+
 
     const payload = {
       name: config.name,
@@ -369,14 +383,15 @@ async function saveToAPI() {
     console.log("TOKEN:", localStorage.getItem("token"))
 
     try {
-      const res = await fetch("http://localhost:4000/api/v1/bag", {
+      const res = await fetch(url, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-         },
+        credentials: "include", // ⬅️ VERPLICHT
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload)
       })
+      
 
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
       alert("Saved successfully!")
