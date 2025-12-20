@@ -18,6 +18,19 @@ const token = params.get("token")
 const API_URL = "http://localhost:4000/api/v1"
 const url = `${API_URL}/bag`
 
+const isPreview = params.get("preview") === "true"
+const bagData = params.get("data")
+const bagId = params.get("bagId")
+
+
+
+function autoRotateBag() {
+  function spin() {
+    if (bag) bag.rotation.y += 0.01
+    requestAnimationFrame(spin)
+  }
+  spin()
+}
 
 if (token) {
   localStorage.setItem("token", token)
@@ -86,24 +99,58 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2))
 // ------------------------------
 let bag
 
+async function loadBagFromAPI(bagId) {
+  const res = await fetch(`http://localhost:4000/api/v1/bag/${bagId}`)
+  if (!res.ok) return null
+  return await res.json()
+}
+
 function loadBagModel() {
   const mtlLoader = new MTLLoader()
+
   mtlLoader.load("/assets/chips-bag-obj/bag.mtl", (materials) => {
     materials.preload()
 
     const objLoader = new OBJLoader()
     objLoader.setMaterials(materials)
 
-    objLoader.load("/assets/chips-bag-obj/bag.obj", (object) => {
+    objLoader.load("/assets/chips-bag-obj/bag.obj", async (object) => {
       bag = object
       bag.scale.set(0.5, 0.5, 0.6)
       bag.position.set(0.6, 1, 0)
       scene.add(bag)
+
+      // ✅ ALS ER EEN bagId IS: HAAL BAG UIT API EN APPLY OP CONFIG
+      if (bagId) {
+        const data = await loadBagFromAPI(bagId)
+        if (data) {
+          config.name = data.name || ""
+          config.bagColor = data.bagColor || "#d32b2b"
+          config.keyFlavours = data.keyFlavours || []
+          config.backgroundPreset = data.backgroundPreset || "red"
+          if (data.image) {
+            customImageLoaded = false
+            customImage.src = data.image
+
+            customImage.onload = () => {
+              customImageLoaded = true
+              updateBagTexture()
+            }
+          }
+          config.backgroundColor = data.backgroundColor || "#05060a"
+        }
+      }
+
+      // ✅ bouw textures met de juiste config
+      createBackTexture()
+      updateBagTexture()
+
       updateControlsTarget()
       tryInitTextures()
     })
   })
 }
+
 
 // ------------------------------
 // CONFIG
@@ -118,6 +165,7 @@ const config = {
   backgroundImageBase64: null
 }
 window.config = config
+
 
 // ------------------------------
 // IMAGES
@@ -318,10 +366,13 @@ function updateBagTexture() {
   })
 }
 
+
 // ------------------------------
 // UPDATE CONFIG
 // ------------------------------
 function updateConfig() {
+  if (isPreview) return
+
   const nameInput = document.querySelector("#bag-name")
   const colorInput = document.querySelector("#bag-color")
   const fontInput = document.querySelector('input[name="bag-font"]:checked')
@@ -367,9 +418,6 @@ async function saveToAPI() {
   const imageInput = document.querySelector("#bag-image")
 
   async function sendPayload(imgBase64) {
-    const token = localStorage.getItem("token");
-
-
     const payload = {
       name: config.name,
       bagColor: config.bagColor,
@@ -380,7 +428,6 @@ async function saveToAPI() {
       backgroundPreset: config.backgroundPreset || null,
       backgroundImage: config.backgroundImageBase64 || null
     }
-    console.log("TOKEN:", localStorage.getItem("token"))
 
     try {
       const res = await fetch(url, {
@@ -425,6 +472,8 @@ animate()
 
 initUI(updateConfig, saveToAPI)
 
+
+
 // ------------------------------
 // START
 // ------------------------------
@@ -437,4 +486,26 @@ function tryInitTextures() {
   }
 }
 
-updateConfig()
+// updateConfig()
+
+if (isPreview) {
+  const ui = document.querySelector(".ui")
+  if (ui) ui.style.display = "none"
+  function spin() {
+    if (bag) {
+      bag.position.y = 1.8 + Math.sin(Date.now() * 0.002) * 0.1
+        // bag.position.set(0, 1.6, 0)
+        // bag.scale.set(0.45, 0.45, 0.45)
+    }
+    renderer.render(scene, camera)
+    camera.fov = 55
+    camera.position.set(0, 1.5, 2)
+    camera.updateProjectionMatrix()
+    const bgBox = document.getElementById("bg-box")
+    if (bgBox) bgBox.style.display = "none"
+    
+    
+    requestAnimationFrame(spin)
+  }
+  spin()
+}
