@@ -493,13 +493,13 @@ if (isPreview) {
   if (ui) ui.style.display = "none"
   function spin() {
     if (bag) {
-      bag.position.y = 1.8 + Math.sin(Date.now() * 0.002) * 0.1
+      bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06
         // bag.position.set(0, 1.6, 0)
         // bag.scale.set(0.45, 0.45, 0.45)
     }
     renderer.render(scene, camera)
-    camera.fov = 55
-    camera.position.set(0, 1.5, 2)
+    camera.fov = 50
+    camera.position.set(0.2, 1.5, 2)
     camera.updateProjectionMatrix()
     const bgBox = document.getElementById("bg-box")
     if (bgBox) bgBox.style.display = "none"
