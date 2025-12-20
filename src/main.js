@@ -520,7 +520,9 @@ function tryInitTextures() {
 
 if (isPreview) {
   const ui = document.querySelector(".ui")
-  if (ui) ui.style.display = "none"
+  const body = document.querySelector("body");
+  if (ui) ui.style.display = "none"; 
+  if (body) body.style.background = "none";
   function spin() {
     if (bag) {
       bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06
@@ -530,7 +532,8 @@ if (isPreview) {
     camera.position.set(0.2, 1.5, 2)
     camera.updateProjectionMatrix()
     const bgBox = document.getElementById("bg-box")
-    if (bgBox) bgBox.style.display = "none"
+    if (bgBox) bgBox.style.display = "none";
+
     
     requestAnimationFrame(spin)
   }

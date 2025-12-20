@@ -61,6 +61,9 @@ canvas {
 #bg-box.bg-blue { background-image: url("/assets/blue-bg.png"); }
 #bg-box.bg-green { background-image: url("/assets/green-bg.png"); }
 #bg-box.bg-pink { background-image: url("/assets/pink-bg.png"); }
+#bg-box.bg-orange { background-image: url("/assets/orange-bg.png"); }
+#bg-box.bg-yellow { background-image: url("/assets/yellow-bg.png"); }
+
 
 /* ===== UI WRAPPER ===== */
 
@@ -101,7 +104,7 @@ canvas {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #ffffff;
+  color: #c80c0c;
 }
 
 .h3 {
@@ -109,7 +112,7 @@ canvas {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  color: #c80c0c;
 }
 
 /* ===== INPUTS ===== */

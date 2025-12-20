@@ -10,7 +10,7 @@
 
   <body>
     <!-- BACKGROUND -->
-    <div id="bg-box" class="bg-red"></div>
+    <div id="bg-box"></div>
     <!-- THREE.JS -->
     <div id="app"></div>
 
@@ -26,7 +26,6 @@
       <section class="step step-name">
         <h2>1. Give your bag a name</h2>
         <label class="h3">
-          Name:
           <input
             type="text"
             id="bag-name"
@@ -47,6 +46,7 @@
             id="bag-color"
             value="#d32b2b"
             class="color-input-hidden"
+            style="display: hidden;"
           />
 
           <button type="button" class="color-swatch is-active" data-color="#BE0003" style="--swatch-color:#BE0003"></button>
@@ -102,6 +102,9 @@
           <img class="bg-img-thumb" data-img="blue" src="/assets/blue-bg.png" />
           <img class="bg-img-thumb" data-img="green" src="/assets/green-bg.png" />
           <img class="bg-img-thumb" data-img="pink" src="/assets/pink-bg.png" />
+          <img class="bg-img-thumb" data-img="orange" src="/assets/orange-bg.png" />
+          <img class="bg-img-thumb" data-img="yellow" src="/assets/yellow-bg.png" />
+
 
           <input type="file" id="bg-image" accept="image/*" />
         </div>

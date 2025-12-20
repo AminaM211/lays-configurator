@@ -3,7 +3,7 @@ export function initUI(onUpdate, onSave) {
   const $ = (q) => document.querySelector(q)
 
   const bgBox = $("#bg-box")
-  const presetClasses = ["bg-red", "bg-blue", "bg-green", "bg-pink"]
+  const presetClasses = ["bg-red", "bg-blue", "bg-green", "bg-pink", "bg-orange", "bg-yellow"]
 
   const nameInput = $("#bag-name")
   const colorInput = $("#bag-color")
@@ -141,7 +141,7 @@ export function initUI(onUpdate, onSave) {
 
     // reset bg state + visual: back to default red preset
     window.config.backgroundColor = "#05060a"
-    window.config.backgroundPreset = "red"
+    window.config.backgroundPreset = ""
     window.config.backgroundImageBase64 = null
 
     bgBox.classList.remove(...presetClasses)
