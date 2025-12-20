@@ -6,6 +6,9 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import laysLogo from "/assets/lays.png"
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
 
 import backImg1 from "/assets/back-img1.png"
 import backImg2 from "/assets/back-img2.png"
@@ -19,23 +22,15 @@ const API_URL = "http://localhost:4000/api/v1"
 const url = `${API_URL}/bag`
 
 const isPreview = params.get("preview") === "true"
-const bagData = params.get("data")
 const bagId = params.get("bagId")
-
-
-
-function autoRotateBag() {
-  function spin() {
-    if (bag) bag.rotation.y += 0.01
-    requestAnimationFrame(spin)
-  }
-  spin()
+const steps = {
+  start: 0,
+  name: 1,
+  color: 2,
+  bg: 3,
+  image: 4,
+  save: 5
 }
-
-if (token) {
-  localStorage.setItem("token", token)
-}
-
 
 const app = document.querySelector("#app")
 
@@ -44,7 +39,9 @@ const app = document.querySelector("#app")
 // ------------------------------
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 renderer.setClearColor(0x000000, 0)
-renderer.setSize(window.innerWidth, window.innerHeight)
+renderer.setSize(window.innerWidth, window.innerHeight * 0.9);
+renderer.setAnimationLoop( animate );
+
 renderer.setPixelRatio(window.devicePixelRatio)
 THREE.ColorManagement.enabled = false
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace
@@ -62,6 +59,7 @@ const camera = new THREE.PerspectiveCamera(
   100
 )
 camera.position.set(0, 2, 4)
+camera.lookAt(0, 1.8, 0)
 scene.add(camera)
 
 window.addEventListener("resize", () => {
@@ -76,13 +74,14 @@ window.addEventListener("resize", () => {
 // ------------------------------
 const controls = new OrbitControls(camera, renderer.domElement)
 controls.enableDamping = true
-controls.dampingFactor = 0.05
+controls.enabled = false
+
 
 function updateControlsTarget() {
   const isMobile = window.innerWidth <= 800
   if (!bag) return
   bag.position.x = isMobile ? 0 : 0.6
-  bag.position.y = isMobile ? 2.8 : 1.9
+  bag.position.y = isMobile ? 2.8 : 1.8
   controls.target.set(isMobile ? 0 : 0.6, 1, 0)
   controls.update()
 }
@@ -98,6 +97,8 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2))
 // BAG
 // ------------------------------
 let bag
+gsap.registerPlugin(ScrollTrigger);
+
 
 async function loadBagFromAPI(bagId) {
   const res = await fetch(`http://localhost:4000/api/v1/bag/${bagId}`)
@@ -120,14 +121,15 @@ function loadBagModel() {
       bag.position.set(0.6, 1, 0)
       scene.add(bag)
 
-      // ✅ ALS ER EEN bagId IS: HAAL BAG UIT API EN APPLY OP CONFIG
+      setupScrollAnimation()
+
       if (bagId) {
         const data = await loadBagFromAPI(bagId)
         if (data) {
           config.name = data.name || ""
           config.bagColor = data.bagColor || "#d32b2b"
           config.keyFlavours = data.keyFlavours || []
-          config.backgroundPreset = data.backgroundPreset || "red"
+          config.backgroundPreset = data.backgroundPreset
           if (data.image) {
             customImageLoaded = false
             customImage.src = data.image
@@ -141,7 +143,6 @@ function loadBagModel() {
         }
       }
 
-      // ✅ bouw textures met de juiste config
       createBackTexture()
       updateBagTexture()
 
@@ -151,6 +152,113 @@ function loadBagModel() {
   })
 }
 
+function setupScrollAnimation() {
+  if (!bag) return
+
+  const vh = window.innerHeight
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: document.body,
+      start: "top top",
+      end: "bottom top",
+      scrub: 0.25
+    }
+  })
+
+  // ───────── STEP 0 — START (intro)
+  tl.to(bag.position, {
+    x: -0.6,
+    y: 2.2,
+    duration:0.6,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: 0.2,
+    duration: 0.4
+  }, "<")
+
+  // ───────── STEP 1 — NAME (links naast UI)
+  tl.to(bag.position, {
+    x: -0.7,
+    y: 1.9,
+    duration: 0.4,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: 0.7,
+    duration: 0.4
+  }, "<")
+
+  // ───────── STEP 2 — COLOR (rechts naast UI)
+  tl.to(bag.position, {
+    x: 2,
+    y: 1.7,
+    duration: 0.7,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: -7,
+    duration:0.4
+  }, "<")
+
+  // ───────── STEP 3 — BACKGROUND (links + iets lager)
+  tl.to(bag.position, {
+    x: -1.0,
+    y: 1.9,
+    duration: 0.4,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: -12.5,
+    duration: 0.4
+  }, "<")
+
+  // ───────── STEP 4 — IMAGE (rechts + focus)
+  tl.to(bag.position, {
+    x: 1.5,
+    y: 1.8,
+    duration: 0.4,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: -13,
+    duration:0.4
+  }, "<")
+  tl.to(bag.position, {
+    x: -0.8,
+    y: 1.9,
+    duration:0.6,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: -11.8,
+    duration:0.6
+  }, "<")
+
+  tl.to(bag.position, {
+    x: 1.8,
+    y: 1.9,
+    duration:0.4,
+    ease: "power1.out"
+  })
+  .to(bag.rotation, {
+    y: -13.3,
+    duration: 0.4
+  }, "<")
+  // ───────── FINAL — terug naar midden (zoals start)
+tl.to(bag.position, {
+  x: -24,
+  y: 0,
+  duration:0.6,
+  ease: "power1.out"
+})
+.to(bag.rotation, {
+  y: 0,
+  duration: 0.6,
+  ease: "power1.out"
+}, "<")
+}
 
 // ------------------------------
 // CONFIG
@@ -161,7 +269,7 @@ const config = {
   font: "Helvetica",
   keyFlavours: [],
   backgroundColor: "#05060a",
-  backgroundPreset: "red", 
+  backgroundPreset: "", 
   backgroundImageBase64: null
 }
 window.config = config
@@ -211,41 +319,6 @@ function createBackTexture() {
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  const grad = ctx.createRadialGradient(512, 512, 80, 512, 512, 520)
-  grad.addColorStop(0, "rgba(255,255,255,0.3)")
-  grad.addColorStop(1, "rgba(255,255,255,0)")
-  ctx.fillStyle = grad
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  function shadeColor(hex, pct) {
-    const num = parseInt(hex.slice(1), 16)
-    const amt = Math.round(2.55 * pct)
-    const R = Math.min(255, Math.max(0, (num >> 16) + amt))
-    const G = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amt))
-    const B = Math.min(255, Math.max(0, (num & 0xff) + amt))
-    return "#" + ((1 << 24) + (R << 16) + (G << 8) + B).toString(16).slice(1)
-  }
-
-  const bands = [
-    { radius: 800, shade: -3, alpha: 0.2 },
-    { radius: 700, shade: 3, alpha: 0.3 },
-    { radius: 600, shade: -3, alpha: 0.4 },
-    { radius: 500, shade: 3, alpha: 0.5 },
-    { radius: 400, shade: -3, alpha: 0.4 }
-  ]
-
-  bands.forEach((b) => {
-    ctx.fillStyle = shadeColor(config.bagColor, b.shade)
-    ctx.globalAlpha = b.alpha
-    ctx.beginPath()
-    ctx.arc(512, canvas.height, b.radius, Math.PI, 0)
-    ctx.lineTo(512 + b.radius, canvas.height)
-    ctx.lineTo(512 - b.radius, canvas.height)
-    ctx.closePath()
-    ctx.fill()
-  })
-  ctx.globalAlpha = 1
-
   ctx.drawImage(backImage1, 80, 200, 420, 520)
   ctx.drawImage(backImage2, 560, 200, 360, 520)
 
@@ -274,45 +347,6 @@ function updateBagTexture() {
 
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  const grad = ctx.createRadialGradient(512, 512, 80, 512, 512, 520)
-  grad.addColorStop(0, "rgba(255,255,255,0.8)")
-  grad.addColorStop(1, "rgba(255,255,255,0)")
-  ctx.fillStyle = grad
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  const centerX = canvas.width / 2
-  const centerY = canvas.height
-
-  const bands = [
-    { radius: 800, shade: -3, alpha: 0.2 },
-    { radius: 700, shade: 3, alpha: 0.3 },
-    { radius: 600, shade: -3, alpha: 0.4 },
-    { radius: 500, shade: 3, alpha: 0.5 },
-    { radius: 400, shade: -3, alpha: 0.4 }
-  ]
-
-  function shadeColor(color, percent) {
-    const num = parseInt(color.slice(1), 16)
-    const amt = Math.round(2.55 * percent)
-    const R = Math.min(255, Math.max(0, (num >> 16) + amt))
-    const G = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + amt))
-    const B = Math.min(255, Math.max(0, (num & 0xff) + amt))
-    return "#" + ((1 << 24) + (R << 16) + (G << 8) + B).toString(16).slice(1)
-  }
-
-  bands.forEach((b) => {
-    ctx.fillStyle = shadeColor(config.bagColor, b.shade)
-    ctx.globalAlpha = b.alpha
-    ctx.beginPath()
-    ctx.arc(centerX, centerY, b.radius, Math.PI, 0)
-    ctx.lineTo(centerX + b.radius, canvas.height)
-    ctx.lineTo(centerX - b.radius, canvas.height)
-    ctx.closePath()
-    ctx.fill()
-  })
-
-  ctx.globalAlpha = 1
 
   // LOGO
   ctx.drawImage(logoImg, 262, 110, 500, 260)
@@ -365,7 +399,6 @@ function updateBagTexture() {
     }
   })
 }
-
 
 // ------------------------------
 // UPDATE CONFIG
@@ -442,6 +475,7 @@ async function saveToAPI() {
 
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
       alert("Saved successfully!")
+      window.location.href = "http://localhost:5174/";
     } catch (err) {
       console.error("API error:", err)
       alert("Error saving")
@@ -463,16 +497,14 @@ async function saveToAPI() {
 // ANIMATION LOOP
 // ------------------------------
 function animate() {
-  requestAnimationFrame(animate)
-  controls.update()
+  // requestAnimationFrame(animate)
+  controls.update();
   renderer.render(scene, camera)
 }
 animate()
 
 
 initUI(updateConfig, saveToAPI)
-
-
 
 // ------------------------------
 // START
@@ -486,16 +518,12 @@ function tryInitTextures() {
   }
 }
 
-// updateConfig()
-
 if (isPreview) {
   const ui = document.querySelector(".ui")
   if (ui) ui.style.display = "none"
   function spin() {
     if (bag) {
       bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06
-        // bag.position.set(0, 1.6, 0)
-        // bag.scale.set(0.45, 0.45, 0.45)
     }
     renderer.render(scene, camera)
     camera.fov = 50
@@ -503,7 +531,6 @@ if (isPreview) {
     camera.updateProjectionMatrix()
     const bgBox = document.getElementById("bg-box")
     if (bgBox) bgBox.style.display = "none"
-    
     
     requestAnimationFrame(spin)
   }

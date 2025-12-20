@@ -9,74 +9,108 @@
   </head>
 
   <body>
-    <!-- DEFAULT BACKGROUND: preset via class -->
+    <!-- BACKGROUND -->
     <div id="bg-box" class="bg-red"></div>
-
+    <!-- THREE.JS -->
     <div id="app"></div>
 
+    <!-- SCROLL UI -->
     <div class="ui">
-      <h2>Customize your bag</h2>
-
-      <label class="h3">
-        Name:
-        <input type="text" id="bag-name" maxlength="26" placeholder="Bag name" />
-      </label>
-
-      <!-- BAG COLOR -->
-      <div class="colors">
-        <button type="button" class="color-swatch" data-color="custom"></button>
-        <input type="color" id="bag-color" value="#d32b2b" class="color-input-hidden">
-      
-        <button type="button" class="color-swatch is-active" data-color="#BE0003" style="--swatch-color:#BE0003"></button>
-        <button type="button" class="color-swatch" data-color="#FF6F00" style="--swatch-color:#FF6F00"></button>
-        <button type="button" class="color-swatch" data-color="#9100D3" style="--swatch-color:#9100D3"></button>
-        <button type="button" class="color-swatch" data-color="#FF35B2" style="--swatch-color:#FF35B2"></button>
-        <button type="button" class="color-swatch" data-color="#0077c8" style="--swatch-color:#0077c8"></button>
-        <button type="button" class="color-swatch" data-color="#2DC925" style="--swatch-color:#2DC925"></button>
-      </div>
-      
-
-      <!-- BACKGROUND -->
-      <h3>Background</h3>
-      <div class="background-group">
-        <label class="bg-label">
-          <button type="button" class="bg-swatch" data-color="custom"></button>
-          <input type="color" id="bg-color" value="#05060a" class="color-input-hidden" />
+      <section class="step step-start">
+        <div class="welkom">
+          <h1>Design your Lays</h1>
+          <p>SCROLL TO START</p>
+        </div>
+      </section>
+      <!-- STEP 1: NAME -->
+      <section class="step step-name">
+        <h2>1. Give your bag a name</h2>
+        <label class="h3">
+          Name:
+          <input
+            type="text"
+            id="bag-name"
+            maxlength="26"
+            placeholder="Bag name"
+          />
         </label>
+      </section>
 
-        <!-- DEFAULT ACTIVE THUMB = RED -->
-        <img class="bg-img-thumb is-active" data-img="red" src="/assets/red-bg.png" />
-        <img class="bg-img-thumb" data-img="blue" src="/assets/blue-bg.png" />
-        <img class="bg-img-thumb" data-img="green" src="/assets/green-bg.png" />
-        <img class="bg-img-thumb" data-img="pink" src="/assets/pink-bg.png" />
+      <!-- STEP 2: COLOR -->
+      <section class="step step-color">
+        <h2>2. Choose a color</h2>
 
-        <input type="file" id="bg-image" accept="image/*" />
-      </div>
+        <div class="colors">
+          <button type="button" class="color-swatch" data-color="custom"></button>
+          <input
+            type="color"
+            id="bag-color"
+            value="#d32b2b"
+            class="color-input-hidden"
+          />
 
-      <!-- FONT -->
-      <fieldset class="font-group">
-        <legend>Font</legend>
-        <label><input type="radio" name="bag-font" value="Helvetica" checked /> Helvetica</label>
-        <label><input type="radio" name="bag-font" value="Arial" /> Arial</label>
-        <label><input type="radio" name="bag-font" value="Impact" /> Impact</label>
-      </fieldset>
+          <button type="button" class="color-swatch is-active" data-color="#BE0003" style="--swatch-color:#BE0003"></button>
+          <button type="button" class="color-swatch" data-color="#FF6F00" style="--swatch-color:#FF6F00"></button>
+          <button type="button" class="color-swatch" data-color="#9100D3" style="--swatch-color:#9100D3"></button>
+          <button type="button" class="color-swatch" data-color="#FF35B2" style="--swatch-color:#FF35B2"></button>
+          <button type="button" class="color-swatch" data-color="#0077c8" style="--swatch-color:#0077c8"></button>
+          <button type="button" class="color-swatch" data-color="#2DC925" style="--swatch-color:#2DC925"></button>
+        </div>
+      </section>
 
-      <!-- IMAGE -->
-      <label class="h3">
-        Image:
-        <input type="file" id="bag-image" accept="image/*" />
-      </label>
+      <!-- STEP 4: FONT -->
+      <section class="step step-font">
+        <h2>4. Select a font</h2>
 
-      <!-- FLAVOURS -->
-      <label class="h3">
-        Key flavours:
-        <textarea id="bag-flavours" maxlength="50"></textarea>
-      </label>
+        <fieldset class="font-group">
+          <label><input type="radio" name="bag-font" value="Helvetica" checked /> Helvetica</label>
+          <label><input type="radio" name="bag-font" value="Arial" /> Arial</label>
+          <label><input type="radio" name="bag-font" value="Impact" /> Impact</label>
+        </fieldset>
+      </section>
 
-      <div class="button-row">
-        <button id="save-config">Upload</button>
-        <button id="reset-config" type="button">Reset design</button>
-      </div>
+      <!-- STEP 5: IMAGE -->
+      <section class="step step-image">
+        <h2>5. Add an image</h2>
+        <label class="h3">
+          <input type="file" id="bag-image" accept="image/*" />
+        </label>
+      </section>
+
+      <!-- STEP 6: FLAVOURS -->
+      <section class="step step-flavours">
+        <h2>6. Key flavours</h2>
+        <label class="h3">
+          <textarea id="bag-flavours" maxlength="50"></textarea>
+        </label>
+      </section>
+
+      <!-- STEP 7: SAVE -->
+      <section class="step step-save">
+        <h2>7. Finish your design</h2>
+        <div class="background-group">
+          <label class="bg-label">
+            <input
+              type="color"
+              id="bg-color"
+              value="#05060a"
+              class="color-input-hidden"
+            />
+          </label>
+
+          <img class="bg-img-thumb" data-img="red" src="/assets/red-bg.png" />
+          <img class="bg-img-thumb" data-img="blue" src="/assets/blue-bg.png" />
+          <img class="bg-img-thumb" data-img="green" src="/assets/green-bg.png" />
+          <img class="bg-img-thumb" data-img="pink" src="/assets/pink-bg.png" />
+
+          <input type="file" id="bg-image" accept="image/*" />
+        </div>
+        <div class="button-row">
+          <button id="save-config">Upload</button>
+          <button id="reset-config" type="button">Try again</button>
+        </div>
+      </section>
+
     </div>
 
     <script type="module" src="/src/main.js"></script>
