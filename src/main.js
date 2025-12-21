@@ -481,7 +481,6 @@ async function saveToAPI() {
       
 
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
-      alert("Saved successfully!")
       window.location.href = "http://localhost:5174/";
     } catch (err) {
       console.error("API error:", err)
@@ -537,8 +536,8 @@ if (isPreview) {
       bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06
     }
     renderer.render(scene, camera)
-    camera.fov = 50
-    camera.position.set(0.2, 1.5, 2)
+    camera.fov = 55
+    camera.position.set(0, 1.2, 2)
     camera.updateProjectionMatrix()
     const bgBox = document.getElementById("bg-box")
     if (bgBox) bgBox.style.display = "none";
