@@ -18,7 +18,7 @@ import backImg2 from "/assets/back-img2.png"
 // ------------------------------
 const params = new URLSearchParams(window.location.search)
 const token = params.get("token")
-const API_URL = "http://localhost:4000/api/v1"
+const API_URL = "https://lays-api-jj8b.onrender.com/api/v1"
 const url = `${API_URL}/bag`
 
 const isPreview = params.get("preview") === "true"
@@ -101,7 +101,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 
 async function loadBagFromAPI(bagId) {
-  const res = await fetch(`http://localhost:4000/api/v1/bag/${bagId}`)
+  const res = await fetch(`https://lays-api-jj8b.onrender.com/api/v1/bag/${bagId}`)
   if (!res.ok) return null
   return await res.json()
 }
@@ -481,7 +481,7 @@ async function saveToAPI() {
       
 
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
-      window.location.href = "http://localhost:5174/";
+      window.location.href = "https://lays-vue.vercel.app/";
     } catch (err) {
       console.error("API error:", err)
       alert("Error saving")
