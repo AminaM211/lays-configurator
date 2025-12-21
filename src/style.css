@@ -22,7 +22,7 @@ body {
   overflow-y: scroll;
   overflow-x: hidden;
   background-color: #f3f3f3;
-  background-image: url('./assets/background.png');
+  background-image: url('/assets/background.png');
   background-size: contain;
   background-repeat: repeat;
 }
