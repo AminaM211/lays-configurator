@@ -481,7 +481,7 @@ async function saveToAPI() {
       
 
       if (!res.ok) throw new Error(`HTTP error ${res.status}`)
-      window.location.href = "https://lays-vue.vercel.app/";
+      window.location.href = "https://lays-vue-2.vercel.app/";
     } catch (err) {
       console.error("API error:", err)
       alert("Error saving")
