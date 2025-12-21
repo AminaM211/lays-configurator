@@ -381,7 +381,12 @@ nav a:hover {
 }
 
 nav {
-  margin: 20px;
+  /* margin: 20px; */
+  background-color: #F7F7F7;
+  padding: 20px;
+  position: sticky;
+  top: 0; 
+  z-index: 999999;
 }
 
 .home img {
