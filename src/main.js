@@ -248,13 +248,13 @@ function setupScrollAnimation() {
   }, "<")
   // ───────── FINAL — terug naar midden (zoals start)
 tl.to(bag.position, {
-  x: -24,
+  x: -16.5,
   y: 0,
   duration:0.6,
   ease: "power1.out"
 })
 .to(bag.rotation, {
-  y: 0,
+  y: -4,
   duration: 0.6,
   ease: "power1.out"
 }, "<")
@@ -318,6 +318,7 @@ function createBackTexture() {
 
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+
 
   ctx.drawImage(backImage1, 80, 200, 420, 520)
   ctx.drawImage(backImage2, 560, 200, 360, 520)
@@ -411,10 +412,16 @@ function updateConfig() {
   const fontInput = document.querySelector('input[name="bag-font"]:checked')
   const imageInput = document.querySelector("#bag-image")
   const flavoursInput = document.querySelector("#bag-flavours")
+  const bgColorInput = document.querySelector("#background-color")
 
   config.name = nameInput.value
   config.bagColor = colorInput.value
   config.font = fontInput.value
+  config.bagColor = colorInput.value
+
+  if (bgColorInput) {
+    config.backgroundColor = bgColorInput.value
+  }
 
   // CUSTOM IMAGE
   if (imageInput.files && imageInput.files[0]) {

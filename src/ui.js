@@ -14,10 +14,10 @@ export function initUI(onUpdate, onSave) {
   const resetBtn = $("#reset-config")
   const fontRadios = $$('input[name="bag-font"]')
 
-  const bgColorInput = $("#bg-color")
   const bgImageInput = $("#bg-image")
   const bgThumbs = $$(".bg-img-thumb")
   const swatches = $$(".color-swatch")
+
 
   // ------------------------------
   // BASIC INPUTS
@@ -63,7 +63,6 @@ export function initUI(onUpdate, onSave) {
       window.config.backgroundImageBase64 = null
       window.config.backgroundColor = "#05060a"
 
-      if (bgColorInput) bgColorInput.value = "#05060a"
       if (bgImageInput) bgImageInput.value = ""
 
       bgBox?.classList.remove(...presetClasses)
@@ -77,23 +76,6 @@ export function initUI(onUpdate, onSave) {
     })
   })
 
-  // ------------------------------
-  // BACKGROUND COLOR
-  // ------------------------------
-  bgColorInput?.addEventListener("input", () => {
-    window.config.backgroundColor = bgColorInput.value
-    window.config.backgroundPreset = null
-    window.config.backgroundImageBase64 = null
-
-    bgBox?.classList.remove(...presetClasses)
-    if (bgBox) {
-      bgBox.style.backgroundImage = ""
-      bgBox.style.backgroundColor = bgColorInput.value
-    }
-
-    bgThumbs.forEach(t => t.classList.remove("is-active"))
-    onUpdate()
-  })
 
   // ------------------------------
   // BACKGROUND IMAGE UPLOAD
@@ -135,7 +117,6 @@ export function initUI(onUpdate, onSave) {
     if (flavoursInput) flavoursInput.value = ""
     if (imageInput) imageInput.value = ""
     if (colorInput) colorInput.value = "#d32b2b"
-    if (bgColorInput) bgColorInput.value = "#05060a"
     if (bgImageInput) bgImageInput.value = ""
 
     window.config.backgroundColor = "#05060a"

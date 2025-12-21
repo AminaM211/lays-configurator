@@ -135,6 +135,29 @@ canvas {
   color: #222;
 }
 
+#background-color {
+  border-radius: 5px;
+  height: 32px;
+  width: 32px;
+  border: none;
+}
+
+@media (max-width: 800px) {
+.step-name, .step-flavours {
+  margin-left: 320px;
+  margin-right: 40px;
+}
+.step-save {
+  margin-left: 150px;
+  margin-right: 150px;
+  margin-top: 20px;
+  
+}
+.step-save h2 {
+  color:rgb(194, 21, 21) !important;
+}
+}
+
 .ui input:focus,
 .ui textarea:focus {
   outline: none;
@@ -162,12 +185,23 @@ canvas {
 .color-swatch::before {
   content: '';
   position: absolute;
-  inset: 3px;
+  inset: 0px;
   border-radius: inherit;
   background: var(--swatch-color, #ccc);
 }
 
 .color-swatch[data-color="custom"]::before {
+  background: conic-gradient(
+    #ff4b4b,
+    #ffd93b,
+    #4cff88,
+    #4ba3ff,
+    #c44bff,
+    #ff4b4b
+  );
+}
+
+#background-color[data-color="custom"]::before {
   background: conic-gradient(
     #ff4b4b,
     #ffd93b,
@@ -305,6 +339,17 @@ canvas {
   padding: 20px;
   border-left: #cc1212 2px solid;
 } 
+
+@media (max-width: 800px) {
+  .welkom {
+    position: static;
+    top: auto;
+    right: auto;
+    border-left: none;
+    border-bottom: #cc1212 2px solid;
+    margin-bottom: 20px;
+  }
+}
 
 .step-start h1, p {
   margin: 0 ;
