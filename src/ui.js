@@ -1,6 +1,7 @@
 // src/ui.js
 export function initUI(onUpdate, onSave) {
   const $ = (q) => document.querySelector(q)
+  const $$ = (q) => document.querySelectorAll(q)
 
   const bgBox = $("#bg-box")
   const presetClasses = ["bg-red", "bg-blue", "bg-green", "bg-pink", "bg-orange", "bg-yellow"]
@@ -11,94 +12,93 @@ export function initUI(onUpdate, onSave) {
   const flavoursInput = $("#bag-flavours")
   const saveBtn = $("#save-config")
   const resetBtn = $("#reset-config")
-  const fontRadios = document.querySelectorAll('input[name="bag-font"]')
+  const fontRadios = $$('input[name="bag-font"]')
 
   const bgColorInput = $("#bg-color")
   const bgImageInput = $("#bg-image")
-  const bgThumbs = document.querySelectorAll(".bg-img-thumb")
-  const swatches = document.querySelectorAll(".color-swatch")
+  const bgThumbs = $$(".bg-img-thumb")
+  const swatches = $$(".color-swatch")
 
   // ------------------------------
   // BASIC INPUTS
   // ------------------------------
-  nameInput.addEventListener("input", onUpdate)
-  imageInput.addEventListener("input", onUpdate)
-  flavoursInput.addEventListener("input", onUpdate)
-
-  fontRadios.forEach((r) => r.addEventListener("change", onUpdate))
+  nameInput?.addEventListener("input", onUpdate)
+  imageInput?.addEventListener("input", onUpdate)
+  flavoursInput?.addEventListener("input", onUpdate)
+  fontRadios.forEach(r => r.addEventListener("change", onUpdate))
 
   // ------------------------------
   // BAG COLOR SWATCHES
   // ------------------------------
-  swatches.forEach((btn) => {
+  swatches.forEach(btn => {
     btn.addEventListener("click", () => {
-      swatches.forEach((b) => b.classList.remove("is-active"))
+      swatches.forEach(b => b.classList.remove("is-active"))
       btn.classList.add("is-active")
 
       const val = btn.dataset.color
       if (val === "custom") {
-        colorInput.click()
-      } else {
+        colorInput?.click()
+      } else if (colorInput) {
         colorInput.value = val
         onUpdate()
       }
     })
   })
 
-  colorInput.addEventListener("input", () => {
-    swatches.forEach((b) => b.classList.remove("is-active"))
-    document.querySelector('.color-swatch[data-color="custom"]')?.classList.add("is-active")
+  colorInput?.addEventListener("input", () => {
+    swatches.forEach(b => b.classList.remove("is-active"))
+    $('.color-swatch[data-color="custom"]')?.classList.add("is-active")
     onUpdate()
   })
 
   // ------------------------------
-  // BACKGROUND PRESETS (CSS classes)
+  // BACKGROUND PRESETS
   // ------------------------------
-  bgThumbs.forEach((thumb) => {
+  bgThumbs.forEach(thumb => {
     thumb.addEventListener("click", () => {
-      bgThumbs.forEach((t) => t.classList.remove("is-active"))
+      bgThumbs.forEach(t => t.classList.remove("is-active"))
       thumb.classList.add("is-active")
 
-      // state
       window.config.backgroundPreset = thumb.dataset.img
       window.config.backgroundImageBase64 = null
       window.config.backgroundColor = "#05060a"
 
-      // UI inputs reset
-      bgColorInput.value = "#05060a"
-      bgImageInput.value = ""
+      if (bgColorInput) bgColorInput.value = "#05060a"
+      if (bgImageInput) bgImageInput.value = ""
 
-      // apply preset class on bg-box
-      bgBox.classList.remove(...presetClasses)
-      bgBox.classList.add(`bg-${thumb.dataset.img}`)
-      bgBox.style.backgroundColor = "transparent" // preset images are used
-      bgBox.style.backgroundImage = "" // ensure inline upload isn't stuck
+      bgBox?.classList.remove(...presetClasses)
+      bgBox?.classList.add(`bg-${thumb.dataset.img}`)
+      if (bgBox) {
+        bgBox.style.backgroundColor = "transparent"
+        bgBox.style.backgroundImage = ""
+      }
 
       onUpdate()
     })
   })
 
   // ------------------------------
-  // BACKGROUND COLOR (custom)
+  // BACKGROUND COLOR
   // ------------------------------
-  bgColorInput.addEventListener("input", () => {
+  bgColorInput?.addEventListener("input", () => {
     window.config.backgroundColor = bgColorInput.value
     window.config.backgroundPreset = null
     window.config.backgroundImageBase64 = null
 
-    bgBox.classList.remove(...presetClasses)
-    bgBox.style.backgroundImage = ""
-    bgBox.style.backgroundColor = window.config.backgroundColor
+    bgBox?.classList.remove(...presetClasses)
+    if (bgBox) {
+      bgBox.style.backgroundImage = ""
+      bgBox.style.backgroundColor = bgColorInput.value
+    }
 
-    bgThumbs.forEach((t) => t.classList.remove("is-active"))
-
+    bgThumbs.forEach(t => t.classList.remove("is-active"))
     onUpdate()
   })
 
   // ------------------------------
-  // BACKGROUND IMAGE UPLOAD (custom)
+  // BACKGROUND IMAGE UPLOAD
   // ------------------------------
-  bgImageInput.addEventListener("change", () => {
+  bgImageInput?.addEventListener("change", () => {
     const file = bgImageInput.files?.[0]
     if (!file) return
 
@@ -107,12 +107,13 @@ export function initUI(onUpdate, onSave) {
       window.config.backgroundPreset = null
       window.config.backgroundImageBase64 = reader.result
 
-      bgBox.classList.remove(...presetClasses)
-      bgBox.style.backgroundColor = "transparent"
-      bgBox.style.backgroundImage = `url("${reader.result}")`
+      bgBox?.classList.remove(...presetClasses)
+      if (bgBox) {
+        bgBox.style.backgroundColor = "transparent"
+        bgBox.style.backgroundImage = `url("${reader.result}")`
+      }
 
-      bgThumbs.forEach((t) => t.classList.remove("is-active"))
-
+      bgThumbs.forEach(t => t.classList.remove("is-active"))
       onUpdate()
     }
     reader.readAsDataURL(file)
@@ -121,7 +122,7 @@ export function initUI(onUpdate, onSave) {
   // ------------------------------
   // SAVE
   // ------------------------------
-  saveBtn.addEventListener("click", (e) => {
+  saveBtn?.addEventListener("click", (e) => {
     e.preventDefault()
     onSave()
   })
@@ -129,35 +130,32 @@ export function initUI(onUpdate, onSave) {
   // ------------------------------
   // RESET
   // ------------------------------
-  resetBtn.addEventListener("click", () => {
-    nameInput.value = ""
-    flavoursInput.value = ""
-    imageInput.value = ""
-    colorInput.value = "#d32b2b"
+  resetBtn?.addEventListener("click", () => {
+    if (nameInput) nameInput.value = ""
+    if (flavoursInput) flavoursInput.value = ""
+    if (imageInput) imageInput.value = ""
+    if (colorInput) colorInput.value = "#d32b2b"
+    if (bgColorInput) bgColorInput.value = "#05060a"
+    if (bgImageInput) bgImageInput.value = ""
 
-    // reset bg inputs
-    bgColorInput.value = "#05060a"
-    bgImageInput.value = ""
-
-    // reset bg state + visual: back to default red preset
     window.config.backgroundColor = "#05060a"
-    window.config.backgroundPreset = ""
+    window.config.backgroundPreset = "red"
     window.config.backgroundImageBase64 = null
 
-    bgBox.classList.remove(...presetClasses)
-    bgBox.classList.add("bg-red")
-    bgBox.style.backgroundColor = "transparent"
-    bgBox.style.backgroundImage = ""
+    bgBox?.classList.remove(...presetClasses)
+    bgBox?.classList.add("bg-red")
+    if (bgBox) {
+      bgBox.style.backgroundColor = "transparent"
+      bgBox.style.backgroundImage = ""
+    }
 
-    bgThumbs.forEach((t) => t.classList.remove("is-active"))
-    document.querySelector('.bg-img-thumb[data-img="red"]')?.classList.add("is-active")
+    bgThumbs.forEach(t => t.classList.remove("is-active"))
+    $('.bg-img-thumb[data-img="red"]')?.classList.add("is-active")
 
-    // reset font
-    fontRadios.forEach((r) => (r.checked = r.value === "Helvetica"))
+    fontRadios.forEach(r => r.checked = r.value === "Helvetica")
 
-    // reset active swatch UI (keeps your existing first-active setup)
-    swatches.forEach((b) => b.classList.remove("is-active"))
-    document.querySelector('.color-swatch[data-color="custom"]')?.classList.add("is-active")
+    swatches.forEach(b => b.classList.remove("is-active"))
+    $('.color-swatch[data-color="custom"]')?.classList.add("is-active")
 
     onUpdate()
   })

@@ -80,7 +80,7 @@ controls.enabled = false
 function updateControlsTarget() {
   const isMobile = window.innerWidth <= 800
   if (!bag) return
-  bag.position.x = isMobile ? 0 : 0.6
+  bag.position.x = isMobile ? 0 : 0
   bag.position.y = isMobile ? 2.8 : 1.8
   controls.target.set(isMobile ? 0 : 0.6, 1, 0)
   controls.update()
@@ -521,8 +521,10 @@ function tryInitTextures() {
 if (isPreview) {
   const ui = document.querySelector(".ui")
   const body = document.querySelector("body");
+  const nav = document.querySelector("nav");
   if (ui) ui.style.display = "none"; 
   if (body) body.style.background = "none";
+  if (nav) nav.style.display = "none";
   function spin() {
     if (bag) {
       bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06

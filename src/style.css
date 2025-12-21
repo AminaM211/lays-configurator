@@ -21,6 +21,7 @@ body {
   background: transparent;
   overflow-y: scroll;
   overflow-x: hidden;
+  background-color: #f3f3f3;
   background-image: url('./assets/background.png');
   background-size: contain;
   background-repeat: repeat;
@@ -93,19 +94,24 @@ canvas {
 }
 
 .step-save {
-  padding-bottom: 130px;
+  padding-bottom: 50px;
 }
 
 /* ===== HEADERS ===== */
 
 .ui h2 {
-  margin: 0 0 10px;
-  font-size: 1rem;
+  margin: 0 0 0px;
+  font-size: 1.5em;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #c80c0c;
 }
+
+.step-save h2 {
+  color: white !important;
+}
+
 
 .h3 {
   font-size: 12px;
@@ -121,8 +127,8 @@ canvas {
 .ui textarea {
   width: 100%;
   margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 15px;
+  border-radius: 10px;
   border: 1px solid rgba(120, 70, 10, 0.35);
   background: rgba(255, 255, 255, 0.95);
   font-size: 0.85rem;
@@ -233,7 +239,7 @@ canvas {
 .button-row {
   display: flex;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: 20px;
 }
 
 .button-row button {
@@ -251,9 +257,23 @@ canvas {
 }
 
 #reset-config {
-  background: white;
+  background: rgba(236, 236, 236, 0.572);
   color: #aa2b09;
+  border: #aa2b09 1px solid;
 }
+
+/* zet dit ONDER je .ui input styles */
+.ui .color-input-hidden {
+  position: absolute !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  pointer-events: none !important;
+}
+
 
 /* ===== MOBILE ===== */
 
@@ -280,8 +300,10 @@ canvas {
   flex-direction: column !important;
   align-self:flex-start !important;
   position: absolute;
-  top: 300px;  
-  right: 10px;
+  top: 200px;  
+  right: 200px;
+  padding: 20px;
+  border-left: #cc1212 2px solid;
 } 
 
 .step-start h1, p {
@@ -289,4 +311,62 @@ canvas {
   padding: 0 ;
   text-wrap: wrap;
   color: rgb(213, 16, 16);
+}
+
+.home {
+  width: 40px;
+  height: 40px;
+  background-color: tomato;
+  border-radius: 99px;
+}
+
+.top-nav a {
+    background: linear-gradient(135deg, #e4b806, #ff9900);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 999px;
+    font-weight: bold;
+    cursor: pointer;  
+    text-decoration: none;
+    color: white;
+}
+
+nav a:hover {
+    background: linear-gradient(135deg, #ffcc00, #ffb833);
+}
+
+nav {
+  margin: 20px;
+}
+
+.home img {
+  width: 30px;
+  height: 30px !important;
+}
+
+.ui input[type="file"] {
+  display: none;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 5px;
+  border-radius: 5px;
+  background: #cd0c0c;
+  color: #8c1f07;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.upload-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.28);
+}
+
+.upload-btn input {
+  display: none;
 }

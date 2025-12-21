@@ -9,8 +9,11 @@
   </head>
 
   <body>
+    <nav class="top-nav">
+      <a class="home" href="http://localhost:5174/">Home</a>
+    </nav>
     <!-- BACKGROUND -->
-    <div id="bg-box"></div>
+    <div id="bg-box" ></div>
     <!-- THREE.JS -->
     <div id="app"></div>
 
@@ -19,7 +22,7 @@
       <section class="step step-start">
         <div class="welkom">
           <h1>Design your Lays</h1>
-          <p>SCROLL TO START</p>
+          <p>SCROLL TO START ↓</p>
         </div>
       </section>
       <!-- STEP 1: NAME -->
@@ -73,8 +76,10 @@
       <section class="step step-image">
         <h2>5. Add an image</h2>
         <label class="h3">
-          <input type="file" id="bag-image" accept="image/*" />
-        </label>
+          <label class="upload-btn">
+            <img src="/assets/image.png" alt="">
+            <input type="file" id="bag-image" accept="image/*" />
+          </label>        </label>
       </section>
 
       <!-- STEP 6: FLAVOURS -->
@@ -106,7 +111,10 @@
           <img class="bg-img-thumb" data-img="yellow" src="/assets/yellow-bg.png" />
 
 
-          <input type="file" id="bg-image" accept="image/*" />
+          <label class="upload-btn">
+            <img src="/assets/image.png" alt="">
+            <input type="file" id="bag-image" accept="image/*" />
+          </label>
         </div>
         <div class="button-row">
           <button id="save-config">Upload</button>
