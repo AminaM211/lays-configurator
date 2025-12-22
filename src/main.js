@@ -8,29 +8,36 @@ import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js"
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js"
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
+import { createBackTexture, updateBagTexture } from "./bagTexture"
 
 import backImg1 from "/assets/back-img1.png"
 import backImg2 from "/assets/back-img2.png"
 
 // ------------------------------
+// LOADER
+// ------------------------------
+const loader = document.getElementById("loader")
+
+function showLoader(text = "Loading…") {
+  if (!loader) return
+  loader.style.display = "flex"
+  loader.querySelector("p").innerText = text
+}
+
+function hideLoader() {
+  if (!loader) return
+  loader.style.display = "none"
+}
+
+// ------------------------------
 // TOKEN FROM URL
 // ------------------------------
 const params = new URLSearchParams(window.location.search)
-const token = params.get("token")
 const API_URL = "https://lays-api-jj8b.onrender.com/api/v1"
 const url = `${API_URL}/bag`
 
 const isPreview = params.get("preview") === "true"
 const bagId = params.get("bagId")
-const steps = {
-  start: 0,
-  name: 1,
-  color: 2,
-  bg: 3,
-  image: 4,
-  save: 5
-}
 
 const app = document.querySelector("#app")
 
@@ -136,16 +143,15 @@ function loadBagModel() {
 
             customImage.onload = () => {
               customImageLoaded = true
-              updateBagTexture()
+              updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
             }
           }
           config.backgroundColor = data.backgroundColor || "#05060a"
         }
       }
 
-      createBackTexture()
-      updateBagTexture()
-
+      createBackTexture(bag, config, backImage1, backImage2)
+      updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
       updateControlsTarget()
       tryInitTextures()
     })
@@ -204,7 +210,7 @@ function setupScrollAnimation() {
 
   // ───────── STEP 3 — BACKGROUND (links + iets lager)
   tl.to(bag.position, {
-    x: -1.0,
+    x: -1,
     y: 1.9,
     duration: 0.4,
     ease: "power1.out"
@@ -216,19 +222,19 @@ function setupScrollAnimation() {
 
   // ───────── STEP 4 — IMAGE (rechts + focus)
   tl.to(bag.position, {
-    x: 1.5,
+    x: 2,
     y: 1.8,
-    duration: 0.4,
+    duration: 0.6,
     ease: "power1.out"
   })
   .to(bag.rotation, {
-    y: -13,
+    y: -13.3,
     duration:0.4
   }, "<")
   tl.to(bag.position, {
-    x: -0.8,
+    x: -1,
     y: 1.9,
-    duration:0.6,
+    duration:0.4,
     ease: "power1.out"
   })
   .to(bag.rotation, {
@@ -236,25 +242,38 @@ function setupScrollAnimation() {
     duration:0.6
   }, "<")
 
-  tl.to(bag.position, {
-    x: 1.8,
-    y: 1.9,
-    duration:0.4,
-    ease: "power1.out"
-  })
-  .to(bag.rotation, {
-    y: -13.3,
-    duration: 0.4
-  }, "<")
+  if (window.innerWidth <= 800) {
+    tl.to(bag.position, {
+      x: 0,
+      y: 2.5,
+      duration: 0.4,
+      ease: "power1.out"
+    })
+    .to(bag.rotation, {
+      y: -6.3,
+      duration: 0.4
+    }, "<")
+  } else {
+    tl.to(bag.position, {
+      x: 0.6,
+      y: 1.8,
+      duration: 0.4,
+      ease: "power1.out"
+    })
+    .to(bag.rotation, {
+      y: -6.4,
+      duration: 0.4
+    }, "<")
+  }
   // ───────── FINAL — terug naar midden (zoals start)
 tl.to(bag.position, {
-  x: -16.5,
+  x: 8.3,
   y: 0,
   duration:0.6,
   ease: "power1.out"
 })
 .to(bag.rotation, {
-  y: -4,
+  y: 0,
   duration: 0.6,
   ease: "power1.out"
 }, "<")
@@ -284,7 +303,7 @@ logoImg.src = laysLogo
 logoImg.onload = () => {
   logoLoaded = true
   tryInitTextures()
-  updateBagTexture()
+  updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
 }
 
 const backImage1 = new Image()
@@ -296,110 +315,16 @@ backImage2.src = backImg2
 
 backImage1.onload = () => {
   backsReady++
-  if (backsReady === 2) createBackTexture()
+  if (backsReady === 2) createBackTexture(bag, config, backImage1, backImage2)
 }
 backImage2.onload = () => {
   backsReady++
-  if (backsReady === 2) createBackTexture()
+  if (backsReady === 2) createBackTexture(bag, config, backImage1, backImage2)
 }
 
 let customImageLoaded = false
 let customImageUrl = null
 const customImage = new Image()
-
-// ------------------------------
-// BACK TEXTURE
-// ------------------------------
-function createBackTexture() {
-  const canvas = document.createElement("canvas")
-  canvas.width = 1024
-  canvas.height = 1024
-  const ctx = canvas.getContext("2d")
-
-  ctx.fillStyle = config.bagColor
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-
-  ctx.drawImage(backImage1, 80, 200, 420, 520)
-  ctx.drawImage(backImage2, 560, 200, 360, 520)
-
-  const tex = new THREE.CanvasTexture(canvas)
-  tex.flipY = false
-
-  if (!bag) return
-  bag.traverse((child) => {
-    if (child.isMesh && child.material && child.material.name === "front") {
-      child.material.map = tex
-      child.material.needsUpdate = true
-    }
-  })
-}
-
-// ------------------------------
-// FRONT TEXTURE
-// ------------------------------
-function updateBagTexture() {
-  if (!logoLoaded) return
-
-  const canvas = document.createElement("canvas")
-  canvas.width = 1024
-  canvas.height = 1024
-  const ctx = canvas.getContext("2d")
-
-  ctx.fillStyle = config.bagColor
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-  // LOGO
-  ctx.drawImage(logoImg, 262, 110, 500, 260)
-
-  // NAME
-  ctx.fillStyle = "white"
-  ctx.textAlign = "center"
-  ctx.font = "bold 80px Arial"
-  ctx.fillText(config.name, 512, 460)
-
-  // FLAVOUR TITLE
-  ctx.font = "bold 40px Helvetica"
-  ctx.fillText("Flavour", 512, 520)
-
-  ctx.font = "36px Helvetica"
-  ctx.fillText(config.keyFlavours.join(", "), 512, 580)
-
-  // CUSTOM IMAGE
-  if (customImageLoaded) {
-    ctx.drawImage(customImage, 287, canvas.height - 420, 450, 350)
-  }
-
-  // BADGE
-  ctx.beginPath()
-  ctx.ellipse(canvas.width - 160, canvas.height - 120, 100, 70, 0, 0, Math.PI * 2)
-  ctx.fillStyle = "rgba(0, 0, 0, 0.24)"
-  ctx.fill()
-  ctx.lineWidth = 8
-  ctx.strokeStyle = "rgba(0, 0, 0, 0.10)"
-  ctx.stroke()
-
-  ctx.fillStyle = "#fff"
-  ctx.textAlign = "center"
-  ctx.font = "10px Helvetica"
-  ctx.fillText("MADE WITH", canvas.width - 160, canvas.height - 150)
-  ctx.font = "30px Helvetica"
-  ctx.fillText("100%", canvas.width - 160, canvas.height - 120)
-  ctx.fillText("Quality", canvas.width - 160, canvas.height - 95)
-  ctx.font = "10px Helvetica"
-  ctx.fillText("INGREDIENTS", canvas.width - 160, canvas.height - 75)
-
-  const tex = new THREE.CanvasTexture(canvas)
-  tex.flipY = false
-
-  if (!bag) return
-  bag.traverse((child) => {
-    if (child.isMesh && child.material && child.material.name === "back") {
-      child.material.map = tex
-      child.material.needsUpdate = true
-    }
-  })
-}
 
 // ------------------------------
 // UPDATE CONFIG
@@ -433,7 +358,7 @@ function updateConfig() {
 
     customImage.onload = () => {
       customImageLoaded = true
-      updateBagTexture()
+      updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
     }
   }
 
@@ -447,8 +372,8 @@ function updateConfig() {
     .filter(Boolean)
 
   if (!bag) return
-  createBackTexture()
-  updateBagTexture()
+  createBackTexture(bag, config, backImage1, backImage2)
+  updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
 }
 
 // ------------------------------
@@ -468,6 +393,8 @@ async function saveToAPI() {
       backgroundPreset: config.backgroundPreset || null,
       backgroundImage: config.backgroundImageBase64 || null
     }
+
+    showLoader("Saving your design…")
 
     try {
       const res = await fetch(url, {
@@ -515,13 +442,15 @@ initUI(updateConfig, saveToAPI)
 // ------------------------------
 // START
 // ------------------------------
+showLoader("Loading bag…")
 loadBagModel()
 
 function tryInitTextures() {
   if (bag && logoLoaded && backImage1.complete) {
-    createBackTexture()
-    updateBagTexture()
-  }
+    createBackTexture(bag, config, backImage1, backImage2)
+    updateBagTexture(bag,config,logoImg,customImage,customImageLoaded)
+    hideLoader() 
+}
 }
 
 if (isPreview) {
