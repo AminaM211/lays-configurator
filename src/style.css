@@ -242,13 +242,21 @@ canvas {
 .font-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 1em;
+  margin-top: 10px;
   border: none;
   padding: 0;
 }
 
 .font-group label {
   cursor: pointer;
+  border: #ea151545 1px solid;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.font-group label:hover {
+  background: #ffdcdcc0;
 }
 
 .font-group input {

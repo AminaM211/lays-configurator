@@ -47,6 +47,7 @@ export function updateBagTexture(
 
   ctx.fillStyle = config.bagColor
   ctx.fillRect(0, 0, canvas.width, canvas.height)
+  const fontFamily = config.font || "Helvetica"
 
   // LOGO
   ctx.drawImage(logoImg, 262, 110, 500, 260)
@@ -54,14 +55,14 @@ export function updateBagTexture(
   // NAME
   ctx.fillStyle = "white"
   ctx.textAlign = "center"
-  ctx.font = "bold 80px Arial"
+  ctx.font = `bold 80px ${fontFamily}`
   ctx.fillText(config.name, 512, 460)
 
   // FLAVOUR TITLE
-  ctx.font = "bold 40px Helvetica"
+  ctx.font = `bold 40px Helvetica`
   ctx.fillText("Flavour", 512, 520)
 
-  ctx.font = "36px Helvetica"
+  ctx.font = `36px Helvetica`
   ctx.fillText(config.keyFlavours.join(", "), 512, 580)
 
   // CUSTOM IMAGE
