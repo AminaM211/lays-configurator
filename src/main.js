@@ -399,7 +399,7 @@ async function saveToAPI() {
     try {
       const res = await fetch(url, {
         method: "POST",
-        credentials: "include", // ⬅️ VERPLICHT
+        credentials: "include", 
         headers: {
           "Content-Type": "application/json"
         },
@@ -449,27 +449,3 @@ function tryInitTextures() {
     hideLoader() 
 }
 }
-
-// if (isPreview) {
-//   const ui = document.querySelector(".ui")
-//   const body = document.querySelector("body");
-//   const nav = document.querySelector("nav");
-//   if (ui) ui.style.display = "none"; 
-//   if (body) body.style.background = "none";
-//   if (nav) nav.style.display = "none";
-//   function spin() {
-//     if (bag) {
-//       bag.position.y = 1.8 + Math.sin(Date.now() * 0.0017) * 0.06
-//     }
-//     renderer.render(scene, camera)
-//     camera.fov = 55
-//     camera.position.set(0, 1.2, 2)
-//     camera.updateProjectionMatrix()
-//     const bgBox = document.getElementById("bg-box")
-//     if (bgBox) bgBox.style.display = "none";
-
-    
-//     requestAnimationFrame(spin)
-//   }
-//   spin()
-// }
